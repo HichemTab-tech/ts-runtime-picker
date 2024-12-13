@@ -1,5 +1,13 @@
 # ts-runtime-picker
 
+![GitHub License](https://img.shields.io/github/license/HichemTab-tech/ts-runtime-picker)
+![NPM Version](https://img.shields.io/npm/v/ts-runtime-picker)
+![NPM Downloads](https://img.shields.io/npm/dw/ts-runtime-picker)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/HichemTab-tech/ts-runtime-picker/npm-publish)
+![GitHub Release](https://img.shields.io/github/v/release/HichemTab-tech/ts-runtime-picker)
+
+
+
 **ts-runtime-picker** 🚀 is a TypeScript-first utility package designed to dynamically transform your code and provide runtime-safe "pickers" for your objects based on TypeScript interfaces or types. The package integrates seamlessly into your Vite-based projects and allows developers to enjoy type-safe runtime logic without sacrificing development speed or flexibility.
 
 ---
