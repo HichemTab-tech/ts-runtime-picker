@@ -1,0 +1,34 @@
+{
+  "name": "ts-runtime-picker",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  ".": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.js",
+    "types": "./dist/index.d.ts"
+  },
+  "./vite-plugin": {
+    "import": "./dist/vite-plugin.js",
+    "require": "./dist/vite-plugin.js"
+  },
+  "scripts": {
+    "build": "tsc && node add-banner.js"
+  },
+  "keywords": [
+    "typescript",
+    "runtime",
+    "picker",
+    "babel",
+    "vite"
+  ],
+  "author": "HichemTab-tech",
+  "license": "MIT",
+  "description": "A package to dynamically create pickers based on TypeScript interfaces.",
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "ts-morph": "^24.0.0",
+    "typescript": "^5.0.0",
+    "vite": "^6.0.3"
+  }
+}
