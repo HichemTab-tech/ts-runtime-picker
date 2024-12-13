@@ -6,5 +6,3 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "fix"
-    exclude:
-      - "ts-runtime-picker"
