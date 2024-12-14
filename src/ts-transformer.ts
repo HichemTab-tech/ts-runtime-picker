@@ -7,12 +7,33 @@ export function transform(code: string, filePath: string): string {
     const sourceFile = project.addSourceFileAtPathIfExists(filePath)
         || project.createSourceFile(filePath, code, { overwrite: true });
 
-    // Find and replace `createPicker<MyInterface>()`
+    // Resolve the alias or name for `createPicker` from "ts-runtime-picker"
+    let createPickerAlias: string | null = null;
+
+    const importDeclarations = sourceFile.getImportDeclarations();
+
+    for (const importDecl of importDeclarations) {
+        if (importDecl.getModuleSpecifierValue() === "ts-runtime-picker") {
+            const namedImports = importDecl.getNamedImports();
+            for (const namedImport of namedImports) {
+                if (namedImport.getName() === "createPicker") {
+                    createPickerAlias = namedImport.getAliasNode()?.getText() || "createPicker";
+                }
+            }
+        }
+    }
+
+    // If we didn't find `createPicker` imported from "ts-runtime-picker", skip the transformation
+    if (!createPickerAlias) {
+        return sourceFile.getFullText();
+    }
+
+    // Find and replace `createPicker<MyInterface>()` or its alias
     const calls = sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression);
 
     for (const call of calls) {
         const expression = call.getExpression().getText();
-        if (expression === "createPicker" && call.getTypeArguments().length > 0) {
+        if (expression === createPickerAlias && call.getTypeArguments().length > 0) {
             const typeArg = call.getTypeArguments()[0];
             const typeName = typeArg.getText();
 
@@ -26,15 +47,13 @@ export function transform(code: string, filePath: string): string {
             const keys = interfaceDecl.getProperties().map(prop => `"${prop.getName()}"`);
 
             // Replace `createPicker<MyInterface>()` with runtime implementation
-            call.replaceWithText(`
-                (obj) => {
-                    const keys = [${keys.join(",")}];
-                    return keys.reduce((acc, key) => {
-                        if (key in obj) acc[key] = obj[key];
-                        return acc;
-                    }, {});
-                }
-            `);
+            call.replaceWithText(`(_obj) => {
+                const _keys = [${keys.join(",")}];
+                return _keys.reduce((_acc, _key) => {
+                    if (_key in _obj) _acc[_key] = _obj[_key];
+                    return _acc;
+                }, {});
+            }`);
         }
     }
 
