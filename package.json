@@ -1,16 +1,23 @@
 {
   "name": "ts-runtime-picker",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  ".": {
-    "import": "./dist/index.js",
-    "require": "./dist/index.js",
-    "types": "./dist/index.d.ts"
-  },
-  "./vite-plugin": {
-    "import": "./dist/vite-plugin.js",
-    "require": "./dist/vite-plugin.js"
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./webpack-loader": {
+      "import": "./dist/webpack-loader.js",
+      "require": "./dist/webpack-loader.js",
+      "types": "./dist/webpack-loader.d.ts"
+    },
+    "./vite-plugin": {
+      "import": "./dist/vite-plugin.js",
+      "require": "./dist/vite-plugin.js"
+    }
   },
   "scripts": {
     "build": "tsc && node add-banner.js"
@@ -30,7 +37,10 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
+    "ts-loader": "^9.5.1",
     "typescript": "^5.0.0",
-    "vite": "^6.0.3"
+    "vite": "^6.0.3",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^5.1.4"
   }
 }

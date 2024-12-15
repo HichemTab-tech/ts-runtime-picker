@@ -8,7 +8,7 @@
 
 
 
-**ts-runtime-picker** 🚀 is a TypeScript-first utility package designed to dynamically transform your code and provide runtime-safe "pickers" for your objects based on TypeScript interfaces or types. The package integrates seamlessly into your Vite-based projects and allows developers to enjoy type-safe runtime logic without sacrificing development speed or flexibility.
+**ts-runtime-picker** 🚀 is a TypeScript-first utility package designed to dynamically transform your code and provide runtime-safe "pickers" for your objects based on TypeScript interfaces or types. The package integrates seamlessly into your Vite-based or Webpack-based projects, allowing developers to enjoy type-safe runtime logic without sacrificing development speed or flexibility.
 
 ---
 
@@ -107,16 +107,56 @@ To start using `ts-runtime-picker`, follow these steps:
 npm install ts-runtime-picker
 ```
 
-### 2. Add the Vite Plugin
+### 2. Add the Vite Plugin or Webpack Loader
+
+#### Vite Plugin
+
 In your `vite.config.ts`, import the plugin and include it in the plugins array:
 
 ```typescript
 import { defineConfig } from "vite";
-import tsRuntimePicker from "ts-runtime-picker/vite-plugin";
+import TsRuntimePickerVitePlugin from "ts-runtime-picker/vite-plugin";
 
 export default defineConfig({
-    plugins: [tsRuntimePicker()],
+    plugins: [TsRuntimePickerVitePlugin()],
 });
+```
+
+#### Webpack Loader
+
+For projects using Webpack, you can integrate `ts-runtime-picker` with the following webpack loader.
+
+```javascript
+module.exports = {
+    //...
+    module: {
+        rules: [
+            {
+                test: /\.ts$/,
+                use: [
+                    {
+                        loader: 'ts-loader',
+                    },
+                    {
+                        loader: 'ts-runtime-picker/webpack-loader', // add the ts-runtime-picker webpack loader
+                    },
+                ],
+                include: path.resolve(__dirname, 'src'),
+                exclude: /node_modules/,
+            },
+        ],
+    },
+    resolve: {
+        extensions: ['.ts', '.js'],
+        fallback: {
+            fs: false,
+            path: false,
+            os: false,
+            perf_hooks: false,
+        }
+    },
+    //...
+}
 ```
 
 ---
@@ -156,7 +196,7 @@ console.log(result); // { firstName: "John", lastName: "Doe", email: "john.doe@e
 ```
 
 ### 3. How It Works
-The Vite plugin dynamically transforms the `createPicker<User>()` call into a runtime-safe implementation that picks only the keys defined in `User`. This is achieved by analyzing the TypeScript interface during the build process and injecting the corresponding runtime logic.
+The plugin dynamically transforms the `createPicker<User>()` call into a runtime-safe implementation that picks only the keys defined in `User`. This transformation works with both Vite (via the plugin) and Webpack (via the loader).
 
 ---
 
@@ -167,6 +207,7 @@ The goal of `ts-runtime-picker` is to bridge the gap between TypeScript's compil
 - 🚫 Avoid repetitive manual key picking from objects.
 - ⚡ Ensure runtime behavior aligns with TypeScript-defined interfaces.
 - 🎉 Simplify code while maintaining type safety.
+- 🛠 Works seamlessly with modern bundlers, including Vite (via a plugin) and Webpack (via a loader).
 ---
 
 
@@ -185,4 +226,4 @@ We welcome contributions! If you'd like to improve `ts-runtime-picker`, feel fre
 
 ## 🌟 Acknowledgements
 
-Special thanks to the open-source community for inspiring the development of tools like this!
+Special thanks to the open-source community and early adopters of `ts-runtime-picker` for their feedback, which helped expand support to Webpack alongside Vite.
