@@ -1,7 +1,17 @@
 import { PluginOption } from "vite";
 import { transform } from "./ts-transformer.js";
 
-const tsRuntimePicker: () => PluginOption = () => {
+/**
+ * A function that provides a Vite plugin for transforming TypeScript files at runtime.
+ * The plugin is named "vite-plugin-ts-runtime-picker" and it is enforced to run at the 'pre' stage.
+ * The transform process specifically handles files with `.ts` and `.tsx` extensions.
+ * The transformation process logs the file being transformed and applies a custom transformation
+ * function to the code.
+ * Source maps are excluded in the output for simplicity.
+ *
+ * @returns {PluginOption} A Vite plugin configuration object for handling TypeScript runtime transformations.
+ */
+const TsRuntimePickerVitePlugin: () => PluginOption = (): PluginOption => {
     return {
         name: "vite-plugin-ts-runtime-picker",
         enforce: "pre",
@@ -19,4 +29,4 @@ const tsRuntimePicker: () => PluginOption = () => {
     } as PluginOption;
 }
 
-export default tsRuntimePicker;
+export default TsRuntimePickerVitePlugin;

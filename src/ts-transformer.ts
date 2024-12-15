@@ -59,9 +59,9 @@ export function transform(code: string, filePath: string): string {
             const keys = properties.map(prop => `"${prop.getName()}"`);
 
             // Replace `createPicker<MyInterface>()` with runtime implementation
-            call.replaceWithText(`(_obj) => {
-                const _keys = [${keys.join(",")}];
-                return _keys.reduce((_acc, _key) => {
+            call.replaceWithText(`(_obj: any) => {
+                const _keys: string[] = [${keys.join(",")}];
+                return _keys.reduce((_acc: {[k: string]: any}, _key: string) => {
                     if (_key in _obj) _acc[_key] = _obj[_key];
                     return _acc;
                 }, {});
