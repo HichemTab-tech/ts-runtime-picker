@@ -37,14 +37,26 @@ export function transform(code: string, filePath: string): string {
             const typeArg = call.getTypeArguments()[0];
             const typeName = typeArg.getText();
 
-            // Get the type declaration for the interface
+            // Get the interface declaration
             const interfaceDecl = sourceFile.getInterface(typeName);
+
             if (!interfaceDecl) {
                 throw new Error(`Interface ${typeName} not found in ${filePath}`);
             }
 
-            // Extract keys from the interface
-            const keys = interfaceDecl.getProperties().map(prop => `"${prop.getName()}"`);
+            // Use TypeChecker to resolve all properties, including inherited ones
+            const typeChecker = project.getTypeChecker();
+            const type = typeChecker.getTypeAtLocation(interfaceDecl);
+
+            if (!type) {
+                throw new Error(`Type information for ${typeName} could not be resolved.`);
+            }
+
+            // Get all properties, including inherited ones
+            const properties = type.getProperties();
+
+            // Extract property names
+            const keys = properties.map(prop => `"${prop.getName()}"`);
 
             // Replace `createPicker<MyInterface>()` with runtime implementation
             call.replaceWithText(`(_obj) => {
