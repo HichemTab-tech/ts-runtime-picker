@@ -1,6 +1,6 @@
 {
   "name": "ts-runtime-picker",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -16,7 +16,8 @@
     },
     "./vite-plugin": {
       "import": "./dist/vite-plugin.js",
-      "require": "./dist/vite-plugin.js"
+      "require": "./dist/vite-plugin.js",
+      "types": "./dist/vite-plugin.d.ts"
     }
   },
   "scripts": {
