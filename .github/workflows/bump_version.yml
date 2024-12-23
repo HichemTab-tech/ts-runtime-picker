@@ -70,6 +70,7 @@ jobs:
       - name: Push changes
         run: |
           git push origin version-bump-${{ env.new_version }}
+          git log -1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
