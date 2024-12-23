@@ -61,18 +61,33 @@ jobs:
           echo "Git status after staging files:"
           git status
           git commit -m "Bump version to ${{ env.new_version }}"
-
-      - name: Verify last commit
-        run: |
+          echo "Git log after commit:"
           git log -1
-          git show --stat
+
+      - name: Verify commit on local branch
+        run: |
+          echo "Current branch:"
+          git branch --show-current
+          echo "Last commit on the branch:"
+          git log -1
 
       - name: Push changes
         run: |
-          git push origin version-bump-${{ env.new_version }}
-          git log -1
+          echo "Pushing to remote:"
+          git push -u origin version-bump-${{ env.new_version }}
+          echo "Verifying pushed branch:"
+          git log origin/version-bump-${{ env.new_version }} -1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify pushed branch
+        run: |
+          git fetch origin version-bump-${{ env.new_version }}
+          echo "Last commit on remote branch:"
+          git log origin/version-bump-${{ env.new_version }} -1
+
+      - name: Verify origin URL
+        run: git remote -v
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
