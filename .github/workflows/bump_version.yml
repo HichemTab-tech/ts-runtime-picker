@@ -22,7 +22,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16' # Use the version of Node.js your project requires
+          node-version: '22.x'
 
       - name: Increment or set version
         id: bump-version
@@ -65,4 +65,4 @@ jobs:
           title: "Bump version to ${{ env.new_version }}"
           body: |
             This PR updates the version to ${{ env.new_version }} in `package.json` and `package-lock.json`.
-          base: main # Adjust to your default branch
+          base: master
