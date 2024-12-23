@@ -55,11 +55,12 @@ jobs:
       - name: Push changes
         run: |
           git push origin version-bump-${{ env.new_version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
           branch: version-bump-${{ env.new_version }}
           title: "Bump version to ${{ env.new_version }}"
           body: |
