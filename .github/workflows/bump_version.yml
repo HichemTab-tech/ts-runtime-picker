@@ -44,6 +44,10 @@ jobs:
           # Output the new version
           echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
 
+      - name: Check jq version
+        run: jq --version
+
+
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
