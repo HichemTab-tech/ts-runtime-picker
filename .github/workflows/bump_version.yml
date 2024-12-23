@@ -48,6 +48,7 @@ jobs:
 
           # create/checkout the branch
           git checkout -b version-bump-$NEW_VERSION
+          git add package.json package-lock.json
 
           # Update package.json and package-lock.json with the new version
           jq ".version=\"$NEW_VERSION\"" package.json > temp.json && mv temp.json package.json
@@ -57,7 +58,6 @@ jobs:
 
       - name: Commit changes
         run: |
-          git add package.json package-lock.json
           git commit -m "Bump version to ${{ env.new_version }}"
 
       - name: Push changes
