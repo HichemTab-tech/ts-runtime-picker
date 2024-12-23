@@ -57,7 +57,7 @@ jobs:
 
       - name: Commit changes
         run: |
-          git add package.json package-lock.json
+          #git add package.json package-lock.json
           echo "Git status after staging files:"
           git status
           git commit -m "Bump version to ${{ env.new_version }}"
