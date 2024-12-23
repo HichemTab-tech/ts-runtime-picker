@@ -55,6 +55,7 @@ jobs:
 
       - name: Commit changes
         run: |
+          git add package.json package-lock.json
           git commit -m "Bump version to ${{ env.new_version }}"
 
       - name: Push changes
