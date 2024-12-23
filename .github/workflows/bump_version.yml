@@ -62,6 +62,11 @@ jobs:
           git status
           git commit -m "Bump version to ${{ env.new_version }}"
 
+      - name: Verify last commit
+        run: |
+          git log -1
+          git show --stat
+
       - name: Push changes
         run: |
           git push -u origin version-bump-${{ env.new_version }}
