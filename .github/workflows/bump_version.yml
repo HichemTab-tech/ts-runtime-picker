@@ -24,6 +24,13 @@ jobs:
         with:
           node-version: '22.x'
 
+
+      - name: init git and checkout
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b version-bump-${{ env.new_version }}
+
       - name: Increment or set version
         id: bump-version
         run: |
@@ -44,23 +51,10 @@ jobs:
           # Output the new version
           echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
 
-      - name: Verify files exist
-        run: |
-          if [ ! -f package.json ]; then echo "package.json not found!"; exit 1; fi
-          if [ ! -f package-lock.json ]; then echo "package-lock.json not found!"; exit 1; fi
-          echo "package.json exists:"
-          cat package.json
-          echo "package-lock.json exists:"
-          cat package-lock.json
-
 
 
       - name: Commit changes
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b version-bump-${{ env.new_version }}
-          git add package.json package-lock.json
           git commit -m "Bump version to ${{ env.new_version }}"
 
       - name: Push changes
