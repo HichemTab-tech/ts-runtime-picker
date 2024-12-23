@@ -47,7 +47,7 @@ jobs:
           echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
 
           # create/checkout the branch
-          git checkout -b version-bump-${{ env.new_version }}
+          git checkout -b version-bump-${{ $NEW_VERSION }}
 
           # Update package.json and package-lock.json with the new version
           jq ".version=\"$NEW_VERSION\"" package.json > temp.json && mv temp.json package.json
