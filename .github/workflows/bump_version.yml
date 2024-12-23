@@ -95,11 +95,11 @@ jobs:
           git diff origin/version-bump-${{ env.new_version }}
 
 
-      #- name: Create Pull Request
-        #uses: peter-evans/create-pull-request@v5
-        #with:
-          #branch: version-bump-${{ env.new_version }}
-          #title: "Bump version to ${{ env.new_version }}"
-          #body: |
-            #This PR updates the version to ${{ env.new_version }} in `package.json` and `package-lock.json`.
-          #base: master
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          branch: version-bump-${{ env.new_version }}
+          title: "Bump version to ${{ env.new_version }}"
+          body: |
+            This PR updates the version to ${{ env.new_version }} in `package.json` and `package-lock.json`.
+          base: master
