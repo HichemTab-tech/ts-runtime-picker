@@ -89,6 +89,11 @@ jobs:
       - name: Verify origin URL
         run: git remote -v
 
+      - name: Verify changes in files
+        run: |
+          git diff origin/version-bump-${{ env.new_version }}
+
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
