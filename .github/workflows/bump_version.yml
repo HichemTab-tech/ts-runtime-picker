@@ -102,4 +102,3 @@ jobs:
           title: "Bump version to ${{ env.new_version }}"
           body: |
             This PR updates the version to ${{ env.new_version }} in `package.json` and `package-lock.json`.
-          base: master
