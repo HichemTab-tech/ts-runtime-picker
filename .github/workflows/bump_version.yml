@@ -96,12 +96,20 @@ jobs:
 
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
-        with:
-          branch: version-bump-${{ env.new_version }}
-          title: "Bump version to ${{ env.new_version }}"
-          body: |
-            This PR updates the version to ${{ env.new_version }} in `package.json` and `package-lock.json`.
-          base: master
-          create-branch: false                       # Prevents the action from trying to create or manage the branch
-          draft: false                               # Set to true if you want a draft PR
+        run: |
+          echo "Creating a Pull Request for branch: version-bump-${{ env.new_version }}"
+          PR_RESPONSE=$(curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/pulls \
+            -d @- <<EOF
+          {
+            "title": "Bump version to ${{ env.new_version }}",
+            "body": "This PR updates the version to ${{ env.new_version }} in \`package.json\` and \`package-lock.json\`.",
+            "head": "version-bump-${{ env.new_version }}",
+            "base": "master"
+          }
+          EOF
+          )
+          echo "Pull Request Response: $PR_RESPONSE"
+
