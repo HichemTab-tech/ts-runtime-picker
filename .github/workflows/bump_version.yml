@@ -54,47 +54,16 @@ jobs:
           jq ".version=\"$NEW_VERSION\"" package.json > temp.json && mv temp.json package.json
           jq ".version=\"$NEW_VERSION\"" package-lock.json > temp-lock.json && mv temp-lock.json package-lock.json
 
-
-
       - name: Commit changes
         run: |
           git add package.json package-lock.json
-          echo "Git status after staging files:"
-          git status
           git commit -m "Bump version to ${{ env.new_version }}"
-          echo "Git log after commit:"
-          git log -1
-
-      - name: Verify commit on local branch
-        run: |
-          echo "Current branch:"
-          git branch --show-current
-          echo "Last commit on the branch:"
-          git log -1
 
       - name: Push changes
         run: |
-          echo "Pushing to remote:"
           git push -u origin version-bump-${{ env.new_version }}
-          echo "Verifying pushed branch:"
-          git log origin/version-bump-${{ env.new_version }} -1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Verify pushed branch
-        run: |
-          git fetch origin version-bump-${{ env.new_version }}
-          echo "Last commit on remote branch:"
-          git log origin/version-bump-${{ env.new_version }} -1
-          cat package.json
-
-      - name: Verify origin URL
-        run: git remote -v
-
-      - name: Verify changes in files
-        run: |
-          git diff origin/version-bump-${{ env.new_version }}
-
 
       - name: Create Pull Request
         run: |
