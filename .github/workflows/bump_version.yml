@@ -1,3 +1,4 @@
+# remember to go to repo settings/actions and allow github actions to write and to open pull request
 name: Version Bump and PR
 
 on:
