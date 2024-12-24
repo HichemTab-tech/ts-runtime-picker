@@ -103,3 +103,5 @@ jobs:
           body: |
             This PR updates the version to ${{ env.new_version }} in `package.json` and `package-lock.json`.
           base: master
+          create-branch: false                       # Prevents the action from trying to create or manage the branch
+          draft: false                               # Set to true if you want a draft PR
