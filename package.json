@@ -34,7 +34,7 @@
   "license": "MIT",
   "description": "A package to dynamically create pickers based on TypeScript interfaces.",
   "dependencies": {
-    "ts-morph": "^24.0.0"
+    "ts-morph": "^25.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
