@@ -15,7 +15,7 @@ on:
 jobs:
   version-bump:
     permissions:
-        contents: read
+        contents: white
         pull-requests: write
     runs-on: ubuntu-latest
 
