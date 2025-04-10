@@ -229,3 +229,9 @@ We welcome contributions! If you'd like to improve `ts-runtime-picker`, feel fre
 Special thanks to the open-source community and early adopters of `ts-runtime-picker` for their feedback, which helped expand support to Webpack alongside Vite.
 
 <!-- GitAds-Verify: 9JJRMB9BB1DIYMRFCFC1V6GB2EJ7TCHJ -->
+
+
+## GitAds Sponsored
+[![Sponsored by GitAds](https://gitads.dev/v1/ad-serve?source=hichemtab-tech/ts-runtime-picker@github)](https://gitads.dev/v1/ad-track?source=hichemtab-tech/ts-runtime-picker@github)
+
+
