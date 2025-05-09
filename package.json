@@ -1,23 +1,22 @@
 {
   "name": "ts-runtime-picker",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     },
     "./webpack-loader": {
+      "types": "./dist/webpack-loader.d.ts",
       "import": "./dist/webpack-loader.js",
-      "require": "./dist/webpack-loader.js",
-      "types": "./dist/webpack-loader.d.ts"
+      "require": "./dist/webpack-loader.js"
     },
     "./vite-plugin": {
+      "types": "./dist/vite-plugin.d.ts",
       "import": "./dist/vite-plugin.js",
-      "require": "./dist/vite-plugin.js",
-      "types": "./dist/vite-plugin.d.ts"
+      "require": "./dist/vite-plugin.js"
     }
   },
   "scripts": {
