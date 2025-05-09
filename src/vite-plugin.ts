@@ -11,7 +11,7 @@ import { transform } from "./ts-transformer.js";
  *
  * @returns {PluginOption} A Vite plugin configuration object for handling TypeScript runtime transformations.
  */
-const TsRuntimePickerVitePlugin: () => PluginOption = (): PluginOption => {
+function TsRuntimePickerVitePlugin(): PluginOption {
     return {
         name: "vite-plugin-ts-runtime-picker",
         enforce: "pre",
@@ -29,4 +29,6 @@ const TsRuntimePickerVitePlugin: () => PluginOption = (): PluginOption => {
     } as PluginOption;
 }
 
+export { TsRuntimePickerVitePlugin };
+// For backward compatibility
 export default TsRuntimePickerVitePlugin;

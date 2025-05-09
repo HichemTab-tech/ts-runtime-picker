@@ -21,7 +21,7 @@
     }
   },
   "scripts": {
-    "build": "tsc && node add-banner.js"
+    "build": "vite build && node add-banner.js"
   },
   "keywords": [
     "typescript",
