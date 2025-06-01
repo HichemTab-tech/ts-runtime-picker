@@ -20,7 +20,9 @@
     }
   },
   "scripts": {
-    "build": "vite build && node add-banner.js"
+    "build": "vite build && node add-banner.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [
     "typescript",
@@ -40,6 +42,7 @@
     "ts-loader": "^9.5.1",
     "typescript": "^5.0.0",
     "vite": "^6.0.3",
+    "vitest": "^3.1.4",
     "webpack": "^5.97.1",
     "webpack-cli": "^6.0.1"
   }

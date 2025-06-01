@@ -1,8 +1,15 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { configDefaults } from 'vitest/config';
 
 // noinspection JSUnusedGlobalSymbols
 export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'node',
+    include: ['**/*.{test,spec}.{js,ts}'],
+    exclude: [...configDefaults.exclude, 'dist/**']
+  },
   build: {
     lib: {
       // Define multiple entry points
