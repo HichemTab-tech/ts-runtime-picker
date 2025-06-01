@@ -195,8 +195,42 @@ const result = picker(inputObject);
 console.log(result); // { firstName: "John", lastName: "Doe", email: "john.doe@example.com", password: "secret" }
 ```
 
-### 3. How It Works
-The plugin dynamically transforms the `createPicker<User>()` call into a runtime-safe implementation that picks only the keys defined in `User`. This transformation works with both Vite (via the plugin) and Webpack (via the loader).
+### 3. Using `createFullPicker`
+For cases where you are certain that all properties defined in the type will be present in the object
+(for example, when extracting a child type from a parent type),
+you can use `createFullPicker`.
+It behaves exactly like `createPicker`, but returns a full type instead of a `Partial` type:
+
+```typescript
+import { createFullPicker } from "ts-runtime-picker";
+
+interface User {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+}
+
+const fullPicker = createFullPicker (); 
+
+const completeUser = {
+    firstName: "John",
+    lastName: "Doe",
+    email: "john.doe@example.com",
+    password: "secret",
+    extraData: "will be removed"
+};
+
+const result = fullPicker(completeUser); // Type is User, not Partial<User>
+```
+
+### 4. How It Works
+The plugin dynamically transforms the `createPicker<User>()` and `createFullPicker<User>()` calls into runtime-safe implementations
+that pick only the keys defined in `User`.
+This transformation works with both Vite (via the plugin) and Webpack (via the loader).
+The main difference between the two functions is in their type signatures:
+- `createPicker<T>()` returns `Partial<T>`, which is safer when some properties might be missing
+- `createFullPicker<T>()` returns `T`, which is appropriate when you know all properties will be present, useful in case where you want to pick a child type from a parent type.
 
 ---
 

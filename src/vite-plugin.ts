@@ -29,6 +29,4 @@ function TsRuntimePickerVitePlugin(): PluginOption {
     } as PluginOption;
 }
 
-export { TsRuntimePickerVitePlugin };
-// For backward compatibility
-export default TsRuntimePickerVitePlugin;
+export { TsRuntimePickerVitePlugin, TsRuntimePickerVitePlugin as default };

@@ -19,6 +19,9 @@ export function transform(code: string, filePath: string): string {
                 if (namedImport.getName() === "createPicker") {
                     createPickerAlias = namedImport.getAliasNode()?.getText() || "createPicker";
                 }
+                else if (namedImport.getName() === "createFullPicker") {
+                    createPickerAlias = namedImport.getAliasNode()?.getText() || "createFullPicker";
+                }
             }
         }
     }
