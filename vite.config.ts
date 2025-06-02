@@ -18,8 +18,8 @@ export default defineConfig({
         'vite-plugin': resolve(__dirname, 'src/vite-plugin.ts'),
         'webpack-loader': resolve(__dirname, 'src/webpack-loader.ts')
       },
-      formats: ['cjs'],
-      fileName: (_format, entryName) => `${entryName}.js`
+      formats: ['cjs', 'es'],
+      fileName: (format, entryName) => `${entryName}.${format === 'es' ? 'mjs' : 'js'}`
     },
     outDir: 'dist',
     emptyOutDir: true,

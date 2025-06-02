@@ -1,6 +1,7 @@
 import { PluginOption } from "vite";
 import { transform } from "./ts-transformer.js";
 
+// noinspection JSUnusedGlobalSymbols
 /**
  * A function that provides a Vite plugin for transforming TypeScript files at runtime.
  * The plugin is named "vite-plugin-ts-runtime-picker" and it is enforced to run at the 'pre' stage.
@@ -11,7 +12,7 @@ import { transform } from "./ts-transformer.js";
  *
  * @returns {PluginOption} A Vite plugin configuration object for handling TypeScript runtime transformations.
  */
-function TsRuntimePickerVitePlugin(): PluginOption {
+export default function TsRuntimePickerVitePlugin(): PluginOption {
     return {
         name: "vite-plugin-ts-runtime-picker",
         enforce: "pre",
@@ -29,4 +30,4 @@ function TsRuntimePickerVitePlugin(): PluginOption {
     } as PluginOption;
 }
 
-export { TsRuntimePickerVitePlugin, TsRuntimePickerVitePlugin as default };
+export { TsRuntimePickerVitePlugin };

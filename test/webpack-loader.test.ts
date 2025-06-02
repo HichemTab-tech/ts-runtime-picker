@@ -17,6 +17,7 @@ describe('TsRuntimePickerWebpackLoader', () => {
     
     // Create a mock loader context
     callback = vi.fn();
+    // noinspection JSUnusedGlobalSymbols
     loaderContext = {
       resourcePath: 'file.ts',
       async: () => callback
