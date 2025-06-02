@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",                // Use the latest JavaScript features
-    "module": "CommonJS",                // Use ESNext modules
+    "module": "ESNext",                // Use ESNext modules
     "moduleResolution": "Node",        // Resolve modules using Node.js rules
     "lib": ["ESNext", "DOM"],          // Include necessary libraries
     "outDir": "./dist",                // Output directory
