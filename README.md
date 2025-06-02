@@ -232,6 +232,8 @@ The main difference between the two functions is in their type signatures:
 - `createPicker<T>()` returns `Partial<T>`, which is safer when some properties might be missing
 - `createFullPicker<T>()` returns `T`, which is appropriate when you know all properties will be present, useful in case where you want to pick a child type from a parent type.
 
+---
+
 > [!WARNING]  
 >Currently, `ts-runtime-picker` does not support dynamic generic types. For example, the following code will not work as expected:
 >
