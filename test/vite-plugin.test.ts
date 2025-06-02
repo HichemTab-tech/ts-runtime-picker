@@ -15,8 +15,11 @@ describe('TsRuntimePickerVitePlugin', () => {
   it('should create a Vite plugin with the correct configuration', () => {
     const plugin = TsRuntimePickerVitePlugin();
 
+    // @ts-ignore
     expect(plugin.name).toBe('vite-plugin-ts-runtime-picker');
+    // @ts-ignore
     expect(plugin.enforce).toBe('pre');
+    // @ts-ignore
     expect(typeof plugin.transform).toBe('function');
   });
 
@@ -25,6 +28,7 @@ describe('TsRuntimePickerVitePlugin', () => {
     const code = 'const x = 1;';
     const id = 'file.ts';
 
+    // @ts-ignore
     const result = plugin.transform(code, id);
 
     expect(transformer.transform).toHaveBeenCalledWith(code, id);
@@ -39,6 +43,7 @@ describe('TsRuntimePickerVitePlugin', () => {
     const code = 'const x = <div />;';
     const id = 'file.tsx';
 
+    // @ts-ignore
     const result = plugin.transform(code, id);
 
     expect(transformer.transform).toHaveBeenCalledWith(code, id);
@@ -53,6 +58,7 @@ describe('TsRuntimePickerVitePlugin', () => {
     const code = 'const x = 1;';
     const id = 'file.js';
 
+    // @ts-ignore
     const result = plugin.transform(code, id);
 
     expect(transformer.transform).not.toHaveBeenCalled();
