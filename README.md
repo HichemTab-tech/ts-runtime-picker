@@ -234,6 +234,24 @@ The main difference between the two functions is in their type signatures:
 
 ---
 
+> [!WARNING]  
+>Currently, `ts-runtime-picker` does not support dynamic generic types. For example, the following code will not work as expected:
+>
+>```typescript
+>function someFunction<T>(data): void {
+>    const picker = createPicker<T>();
+>    const filteredData = picker(data);
+>    //...
+>}
+>
+>someFunction<User>(request.data);
+>```
+>
+>The type parameter `T` must be an explicitly declared type when using `createPicker<T>()`. **We are actively working on supporting dynamic generic types in future releases**.
+>And we are looking for contributors to help us implement this feature. If you're interested, please check out our [contributing guidelines](#contributing).
+
+---
+
 ## 🎯 Purpose and Benefits
 
 The goal of `ts-runtime-picker` is to bridge the gap between TypeScript's compile-time type safety and runtime JavaScript functionality. By transforming your code at build time, this package enables developers to:
