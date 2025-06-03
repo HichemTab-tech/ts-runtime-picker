@@ -5,12 +5,12 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
     "./webpack-loader": {
       "types": "./dist/webpack-loader.d.ts",
-      "import": "./dist/webpack-loader.js",
+      "import": "./dist/webpack-loader.mjs",
       "require": "./dist/webpack-loader.js"
     },
     "./vite-plugin": {
