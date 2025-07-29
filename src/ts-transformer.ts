@@ -1,15 +1,20 @@
 import { Project, SyntaxKind } from "ts-morph";
 
-export function transform(code: string, filePath: string): string {
-    const project = new Project({
-        // make sure you’ve configured TS so it can see your other files (tsconfig.json, etc.)
-        // otherwise type‐resolution won’t work across files
-        tsConfigFilePath: "tsconfig.json",
-    });
+const project = new Project({
+    tsConfigFilePath: "tsconfig.json",
+});
 
-    // Load the file if it exists, otherwise create a new one
-    const sourceFile = project.addSourceFileAtPathIfExists(filePath)
-        || project.createSourceFile(filePath, code, { overwrite: true });
+export function transform(code: string, filePath: string): string {
+
+    let sourceFile = project.getSourceFile(filePath);
+
+    if (!sourceFile) {
+        // Load the file if it exists, otherwise create a new one
+        sourceFile = project.createSourceFile(filePath, code, { overwrite: true });
+    } else {
+        // If the file already exists, we can replace its content
+        sourceFile.replaceWithText(code);
+    }
 
     // Figure out what the “createPicker” import is called (alias or direct)
     let createPickerAlias: string | null = null;
