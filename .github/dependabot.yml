@@ -6,3 +6,7 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "fix"
+    groups:
+      all-updates:
+        patterns:
+          - "*"
