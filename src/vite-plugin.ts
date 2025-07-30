@@ -1,5 +1,5 @@
 import { PluginOption } from "vite";
-import { transform } from "./ts-transformer.js";
+import {fileToTypes, refreshProject, transform, typeToFile} from "./ts-transformer.js";
 
 // noinspection JSUnusedGlobalSymbols
 /**
@@ -27,6 +27,42 @@ export default function TsRuntimePickerVitePlugin(): PluginOption {
 
             return null;
         },
+
+        handleHotUpdate: ({server, file}) => {
+            const affectedFiles = [];
+
+            // Loop over all files that used types
+            for (const [userFile, usedTypes] of fileToTypes.entries()) {
+                for (const typeName of usedTypes) {
+                    if (typeToFile.get(typeName) === file) {
+                        affectedFiles.push(userFile);
+                        break;
+                    }
+                }
+            }
+
+            if (affectedFiles.length) {
+                refreshProject();
+
+                for (const file of affectedFiles) {
+                    const mod = server.moduleGraph.getModuleById(file);
+                    if (mod) {
+                        server.moduleGraph.invalidateModule(mod);
+                        server.ws.send({
+                            type: 'update',
+                            updates: [
+                                {
+                                    type: 'js-update',
+                                    path: mod.url, // relative to root
+                                    acceptedPath: mod.url,
+                                    timestamp: Date.now()
+                                }
+                            ]
+                        });
+                    }
+                }
+            }
+        }
     } as PluginOption;
 }
 
