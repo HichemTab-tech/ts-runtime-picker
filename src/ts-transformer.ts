@@ -12,7 +12,16 @@ export const refreshProject = () => {
     });
 }
 
-refreshProject();
+export const invalidateOneFile = (file: string) => {
+
+    const sourceFileToRefresh = project.getSourceFile(file);
+    if (sourceFileToRefresh) {
+        sourceFileToRefresh.refreshFromFileSystemSync();
+        return true;
+    } else {
+        return false;
+    }
+}
 
 export function transform(code: string, filePath: string): string {
 
@@ -90,3 +99,5 @@ export function transform(code: string, filePath: string): string {
 
     return sourceFile.getFullText();
 }
+
+refreshProject();
