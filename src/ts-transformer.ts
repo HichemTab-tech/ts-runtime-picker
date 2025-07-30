@@ -1,10 +1,31 @@
 import { Project, SyntaxKind } from "ts-morph";
 
-const project = new Project({
-    tsConfigFilePath: "tsconfig.json",
-});
+export const fileToTypes = new Map<string, Set<string>>();
+
+export const typeToFile = new Map<string, string>();
+
+let project = null as unknown as Project;
+
+export const refreshProject = () => {
+    project = new Project({
+        tsConfigFilePath: "tsconfig.json",
+    });
+}
+
+export const invalidateOneFile = (file: string) => {
+
+    const sourceFileToRefresh = project.getSourceFile(file);
+    if (sourceFileToRefresh) {
+        sourceFileToRefresh.refreshFromFileSystemSync();
+        return true;
+    } else {
+        return false;
+    }
+}
 
 export function transform(code: string, filePath: string): string {
+
+    const usedTypes = new Set<string>();
 
     let sourceFile = project.getSourceFile(filePath);
 
@@ -15,6 +36,20 @@ export function transform(code: string, filePath: string): string {
         // If the file already exists, we can replace its content
         sourceFile.replaceWithText(code);
     }
+
+    sourceFile.getDescendantsOfKind(SyntaxKind.TypeReference).forEach(ref => {
+        const typeName = ref.getTypeName().getText();
+        usedTypes.add(typeName);
+
+        // BONUS: resolve where this type is defined
+        const decl = ref.getType().getSymbol()?.getDeclarations()?.[0];
+        const source = decl?.getSourceFile()?.getFilePath();
+        if (source) {
+            typeToFile.set(typeName, source);
+        }
+    });
+
+    fileToTypes.set(filePath, usedTypes);
 
     // Figure out what the “createPicker” import is called (alias or direct)
     let createPickerAlias: string | null = null;
@@ -64,3 +99,5 @@ export function transform(code: string, filePath: string): string {
 
     return sourceFile.getFullText();
 }
+
+refreshProject();
