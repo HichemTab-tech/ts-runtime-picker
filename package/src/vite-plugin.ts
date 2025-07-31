@@ -1,5 +1,5 @@
 import { PluginOption } from "vite";
-import {fileToTypes, invalidateOneFile, transform, typeToFile} from "./ts-transformer.js";
+import {fileToTypes, invalidateOneFile, transform, typeToFile} from "./ts-transformer";
 
 // noinspection JSUnusedGlobalSymbols
 /**

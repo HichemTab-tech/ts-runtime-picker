@@ -38,7 +38,7 @@ jobs:
         id: bump-version
         run: |
           # Read the current version from package.json
-          CURRENT_VERSION=$(jq -r '.version' package.json)
+          CURRENT_VERSION=$(jq -r '.version' package/package.json)
 
           # Determine the new version
           if [[ "${{ github.event.inputs.version_increment }}" == "custom" && -n "${{ github.event.inputs.custom_version }}" ]]; then
@@ -54,8 +54,8 @@ jobs:
           git checkout -b version-bump-$NEW_VERSION
 
           # Update package.json and package-lock.json with the new version
-          jq ".version=\"$NEW_VERSION\"" package.json > temp.json && mv temp.json package.json
-          jq ".version=\"$NEW_VERSION\"" package-lock.json > temp-lock.json && mv temp-lock.json package-lock.json
+          jq ".version=\"$NEW_VERSION\"" package/package.json > temp.json && mv temp.json package/package.json
+          jq ".version=\"$NEW_VERSION\"" package/package-lock.json > temp-lock.json && mv temp-lock.json package/package-lock.json
 
       - name: Commit changes
         run: |

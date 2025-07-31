@@ -1,15 +1,5 @@
 {
   "compilerOptions": {
-    "target": "ESNext",                // Use the latest JavaScript features
-    "module": "ESNext",                // Use ESNext modules
-    "moduleResolution": "Node",        // Resolve modules using Node.js rules
-    "lib": ["ESNext", "DOM"],          // Include necessary libraries
-    "outDir": "./dist",                // Output directory
-    "strict": true,                    // Enable strict type checking
-    "esModuleInterop": true,           // Allow interop with CommonJS modules
-    "declaration": true,               // Generate type definitions
-    "skipLibCheck": true               // Skip checking type definitions of node_modules
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+    "baseUrl": "."
+  }
 }
