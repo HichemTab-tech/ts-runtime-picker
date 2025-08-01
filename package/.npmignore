@@ -3,3 +3,4 @@ src
 .gitignore
 .github/
 tsconfig.json
+test

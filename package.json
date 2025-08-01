@@ -1,49 +1,14 @@
 {
-  "name": "ts-runtime-picker",
-  "version": "2.2.0",
-  "main": "dist/index.js",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
-    },
-    "./webpack-loader": {
-      "types": "./dist/webpack-loader.d.ts",
-      "import": "./dist/webpack-loader.mjs",
-      "require": "./dist/webpack-loader.js"
-    },
-    "./vite-plugin": {
-      "types": "./dist/vite-plugin.d.ts",
-      "import": "./dist/vite-plugin.mjs",
-      "require": "./dist/vite-plugin.js"
-    }
-  },
+  "name": "ts-runtime-picker-monorepo",
   "scripts": {
-    "build": "vite build && node add-banner.js",
-    "test": "vitest run",
-    "test:watch": "vitest"
-  },
-  "keywords": [
-    "typescript",
-    "runtime",
-    "picker",
-    "babel",
-    "vite"
-  ],
-  "author": "HichemTab-tech",
-  "license": "MIT",
-  "description": "A package to dynamically create pickers based on TypeScript interfaces.",
-  "dependencies": {
-    "ts-morph": "^26.0.0"
+    "package:build": "pnpm --filter=ts-runtime-picker build",
+    "package:build:watch": "pnpm --filter=ts-runtime-picker build:watch",
+    "package:test": "pnpm --filter=ts-runtime-picker test",
+    "package:test:watch": "pnpm --filter=ts-runtime-picker test:watch",
+    "package:publish": "cd package && pnpm publish --access public --no-git-checks"
   },
   "devDependencies": {
-    "@types/node": "^24.0.8",
-    "ts-loader": "^9.5.1",
-    "typescript": "^5.0.0",
-    "vite": "^7.0.0",
-    "vitest": "^3.1.4",
-    "webpack": "^5.97.1",
-    "webpack-cli": "^6.0.1"
+    "typescript": "^5.8.2",
+    "vite": "^7.0.6"
   }
 }

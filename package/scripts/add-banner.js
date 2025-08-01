@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Read the version from package.json
-const packageJson = require('./package.json');
+const packageJson = require('../package.json');
 const version = packageJson.version;
 
 // Banner to prepend to files

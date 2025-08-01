@@ -25,9 +25,9 @@ jobs:
         run: pnpm install
 
       - name: Build project
-        run: pnpm run build
+        run: pnpm run package:build
 
       - name: Publish to npm
-        run: pnpm publish --access public --no-git-checks
+        run: pnpm run package:publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
