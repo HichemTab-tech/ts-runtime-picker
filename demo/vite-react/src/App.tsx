@@ -1,9 +1,11 @@
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import {createPicker} from "ts-runtime-picker";
-import type {Admin as Type} from "./types";
+import type {Admin as Type, User} from "./types";
+import Component from "./Component";
+import {HelloBOSS} from "virtual:hello-boss";
 
 const request = {
     data: {
@@ -17,16 +19,36 @@ const request = {
     }
 };
 
+const realPicker = createPicker<Type>();
+
+const createBiggerPicker = <T = any>() => {
+    return createGenericPicker2<T>();
+}
+
+const createGenericPicker2 = <T = any>() => {
+    return createPicker<T>();
+}
+
+const createGenericPicker = <T = any>() => {
+    return createPicker<T>();
+}
+
 function App() {
     const [count, setCount] = useState(0);
 
     try {
-        const picker = createPicker<Type>();
+        const picker = createGenericPicker<Type>();
+        const picker2 = createBiggerPicker<User>();
         const filteredData = picker(request.data);
-        console.log("filteredData", filteredData);
+        const filteredData2 = picker2(request.data);
+        console.log("filteredData", filteredData, filteredData2, realPicker(request.data));
     } catch (e) {
         console.error("Error during data picking:", e);
     }
+
+    useEffect(() => {
+        console.log("Hello from App: ", HelloBOSS);
+    }, [count]);
 
     return (
         <>
@@ -50,6 +72,9 @@ function App() {
             <p className="read-the-docs">
                 Click on the Vite and React logos to learn more
             </p>
+            <div className="card">
+                <Component/>
+            </div>
         </>
     )
 }
