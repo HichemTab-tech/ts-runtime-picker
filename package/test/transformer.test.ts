@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { transform } from '../src/ts-transformer';
+import { transformCode as transform } from '../src/transformation/transformer';
 
-describe('ts-transformer', () => {
+describe('transformerCode', () => {
   it('should transform createPicker calls', () => {
     const code = `
       import { createPicker } from "ts-runtime-picker";

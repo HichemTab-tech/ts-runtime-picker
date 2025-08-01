@@ -9,14 +9,14 @@
       "require": "./dist/index.js"
     },
     "./webpack-loader": {
-      "types": "./dist/webpack-loader.d.ts",
-      "import": "./dist/webpack-loader.mjs",
-      "require": "./dist/webpack-loader.js"
+      "types": "./dist/plugin/webpack-loader.d.ts",
+      "import": "./dist/plugin/webpack-loader.mjs",
+      "require": "./dist/plugin/webpack-loader.js"
     },
     "./vite-plugin": {
-      "types": "./dist/vite-plugin.d.ts",
-      "import": "./dist/vite-plugin.mjs",
-      "require": "./dist/vite-plugin.js"
+      "types": "./dist/plugin/vite-plugin.d.ts",
+      "import": "./dist/plugin/vite-plugin.mjs",
+      "require": "./dist/plugin/vite-plugin.js"
     }
   },
   "scripts": {
@@ -41,7 +41,9 @@
     "ts-morph": "^26.0.0"
   },
   "devDependencies": {
+    "typescript": "^5.9.2",
     "ts-loader": "^9.5.1",
+    "vite-plugin-dts": "^4.5.4",
     "vitest": "^3.1.4",
     "webpack": "^5.97.1",
     "webpack-cli": "^6.0.1"

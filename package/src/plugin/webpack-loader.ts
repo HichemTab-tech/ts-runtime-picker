@@ -1,5 +1,5 @@
 import { LoaderContext } from 'webpack';
-import { transform } from './ts-transformer';
+import {transformCode} from "../transformation/transformer";
 
 /**
  * A Webpack loader function that transforms TypeScript files at runtime.
@@ -12,7 +12,7 @@ const TsRuntimePickerWebpackLoader = function (this: LoaderContext<any>, source:
     const callback = this.async(); // Asynchronous processing
     if (filePath.endsWith(".ts") || filePath.endsWith(".tsx")) {
         try {
-            const transformedCode = transform(source, filePath);
+            const transformedCode = transformCode(source, filePath);
 
             callback(null, transformedCode, map);
         } catch (err: any) {
