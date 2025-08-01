@@ -2,8 +2,10 @@ import { SyntaxKind } from "ts-morph";
 import { project, fileToTypes, typeToFile } from "../plugin/state";
 import * as analyzer from "./analyzer";
 import * as rewriter from "./rewriter";
+import {generateRandomId} from "../lib/utils";
 
 export function transformCode(code: string, filePath: string): string {
+    const argName = "_pickerKeys_"+generateRandomId();
     let sourceFile = project.getSourceFile(filePath);
     if (!sourceFile) {
         // Load the file if it exists, otherwise create a new one
@@ -54,29 +56,57 @@ export function transformCode(code: string, filePath: string): string {
             }
 
             if (pickedType.isTypeParameter()) {
-                // analyze the situation without changing any code.
                 const container = analyzer.findContainingFunction(call);
-                console.log("container", container?.getText());
-                if (!container) continue; // Not in a function we can modify.
+                if (!container) continue;
 
-                const usages = analyzer.findFunctionUsages(container);
-                if (usages.length === 0) continue; // No usages, nothing to do.
+                const concreteUsages = analyzer.traceToConcreteUsages(container);
+                if (concreteUsages.length === 0) continue;
 
-                // rewrite the code based on the analysis.
+                // Use a Set to track which functions we have already added the parameter to.
+                const modifiedFunctions = new Set<any>();
 
-                // Rewrite all the places the container is used.
-                for (const usage of usages) {
-                    const typeArg = usage.getTypeArguments()[0];
-                    if (typeArg) {
-                        const concreteType = typeArg.getType();
-                        const properties = concreteType.getProperties().map(p => p.getName());
-                        rewriter.addArgumentToCall(usage, properties);
+                for (const usage of concreteUsages) {
+                    // Rewrite the final call site. This is always unique per usage, so it's safe.
+                    rewriter.addArgumentToCall(usage.callSite, usage.properties);
+
+                    // Loop through the functions in the chain.
+                    for (let i = 0; i < usage.chain.length; i++) {
+                        const funcInChain = usage.chain[i];
+
+                        // Only add the parameter if we haven't done it before.
+                        if (!modifiedFunctions.has(funcInChain)) {
+                            rewriter.addParameterToFunctionSignature(funcInChain, argName);
+                            modifiedFunctions.add(funcInChain); // Remember that we've done it.
+                        }
+
+                        const nextFuncInChain = usage.chain[i + 1];
+
+                        // If it exists, find the call that focuses on it.
+                        if (nextFuncInChain) {
+                            const callToNextFunc = funcInChain.getDescendantsOfKind(SyntaxKind.CallExpression)
+                                .find(c => {
+                                    const symbol = c.getExpression().getType().getSymbol();
+                                    const decl = symbol?.getDeclarations()[0];
+                                    // Now we are comparing with the variable from the outer scope.
+                                    return decl === nextFuncInChain;
+                                });
+
+                            // If we found the connecting call, modify it.
+                            if (callToNextFunc) {
+                                // Check if the argument is already there before adding it.
+                                // A simple check is to see if the number of arguments is lower than the number of parameters.
+                                const expectedParams = nextFuncInChain.getParameters().length;
+                                if (callToNextFunc.getArguments().length < expectedParams) {
+                                    rewriter.addArgumentToCall(callToNextFunc, argName);
+                                }
+                            }
+                        }
                     }
                 }
 
-                // Rewrite the container function itself.
-                rewriter.addParameterToFunctionSignature(container);
-                rewriter.replacePickerCallWithImplementation(call);
+                // Replace the original, innermost `createPicker<T>()` call.
+                // This is the very first picker we found, so it only needs to be done once.
+                rewriter.replacePickerCallWithImplementation(call, argName);
             } else {
                 const props = pickedType.getProperties().map(p => `"${p.getName()}"`);
                 call.replaceWithText(`(_obj: any) => {

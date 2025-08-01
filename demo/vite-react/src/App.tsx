@@ -21,25 +21,25 @@ const request = {
 
 const realPicker = createPicker<Type>();
 
-/*const createBiggerPicker = <T = any>() => {
+const createBiggerPicker = <T = any>() => {
     return createGenericPicker2<T>();
-}*/
-
-/*const createGenericPicker2 = <T = any>() => {
-    //return createPicker<T>({ignoreErrors: true});
-    return (_: any) => ({}) as T;
-}*/
-
-const createGenericPicker = <T = any>() => {
-    return createPicker<T>({ignoreErrors: true});
 }
+
+const createGenericPicker2 = <T = any>() => {
+    return createPicker<T>({ignoreErrors: true});
+    //return (_: any) => ({}) as T;
+}
+
+/*const createGenericPicker = <T = any>() => {
+    return createPicker<T>({ignoreErrors: true});
+}*/
 
 function App() {
     const [count, setCount] = useState(0);
 
     try {
-        const picker = createGenericPicker<Type>();
-        const picker2 = createGenericPicker<User>();
+        const picker = createBiggerPicker<Type>();
+        const picker2 = createBiggerPicker<User>();
         const filteredData = picker(request.data);
         const filteredData2 = picker2(request.data);
         console.log("generic With Admin", filteredData);
