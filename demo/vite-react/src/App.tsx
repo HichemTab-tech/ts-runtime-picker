@@ -21,13 +21,15 @@ const request = {
 
 const realPicker = createPicker<Type>();
 
-const createBiggerPicker = <T = any>() => {
-    return createGenericPicker2<T>();
+const createBiggerPicker = <T = any, P = any>() => {
+    return [
+        createGenericPicker2<T>(),
+        createGenericPicker2<P>()
+    ];
 }
 
 const createGenericPicker2 = <T = any>() => {
     return createPicker<T>({ignoreErrors: true});
-    //return (_: any) => ({}) as T;
 }
 
 /*const createGenericPicker = <T = any>() => {
@@ -38,10 +40,9 @@ function App() {
     const [count, setCount] = useState(0);
 
     try {
-        const picker = createBiggerPicker<Type>();
-        const picker2 = createBiggerPicker<User>();
-        const filteredData = picker(request.data);
-        const filteredData2 = picker2(request.data);
+        const picker = createBiggerPicker<Type, User>();
+        const filteredData = picker[0](request.data);
+        const filteredData2 = picker[1](request.data);
         console.log("generic With Admin", filteredData);
         console.log("generic With User", filteredData2);
         console.log("realPicker", realPicker(request.data));
