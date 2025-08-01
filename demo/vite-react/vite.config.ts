@@ -24,6 +24,9 @@ export default defineConfig({
             },
         }
     ],
+    build: {
+        minify: false,
+    },
     server: {
         watch: {
             ignored: ['!**/node_modules/ts-runtime-picker/**'],

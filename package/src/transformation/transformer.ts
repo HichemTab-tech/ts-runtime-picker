@@ -1,5 +1,7 @@
 import { SyntaxKind } from "ts-morph";
 import { project, fileToTypes, typeToFile } from "../plugin/state";
+import * as analyzer from "./analyzer";
+import * as rewriter from "./rewriter";
 
 export function transformCode(code: string, filePath: string): string {
     let sourceFile = project.getSourceFile(filePath);
@@ -52,12 +54,29 @@ export function transformCode(code: string, filePath: string): string {
             }
 
             if (pickedType.isTypeParameter()) {
-                // We will handle the generic case in this block.
-                // For now, it replaces with a simple temporary function
-                call.replaceWithText(`(_obj: any) => {
-                  console.warn("Generic type detected, but no specific logic implemented yet.");
-                  return {};
-                }`);
+                // analyze the situation without changing any code.
+                const container = analyzer.findContainingFunction(call);
+                console.log("container", container?.getText());
+                if (!container) continue; // Not in a function we can modify.
+
+                const usages = analyzer.findFunctionUsages(container);
+                if (usages.length === 0) continue; // No usages, nothing to do.
+
+                // rewrite the code based on the analysis.
+
+                // Rewrite all the places the container is used.
+                for (const usage of usages) {
+                    const typeArg = usage.getTypeArguments()[0];
+                    if (typeArg) {
+                        const concreteType = typeArg.getType();
+                        const properties = concreteType.getProperties().map(p => p.getName());
+                        rewriter.addArgumentToCall(usage, properties);
+                    }
+                }
+
+                // Rewrite the container function itself.
+                rewriter.addParameterToFunctionSignature(container);
+                rewriter.replacePickerCallWithImplementation(call);
             } else {
                 const props = pickedType.getProperties().map(p => `"${p.getName()}"`);
                 call.replaceWithText(`(_obj: any) => {

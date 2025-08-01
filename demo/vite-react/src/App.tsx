@@ -5,7 +5,6 @@ import './App.css'
 import {createPicker} from "ts-runtime-picker";
 import type {Admin as Type, User} from "./types";
 import Component from "./Component";
-import {HelloBOSS} from "virtual:hello-boss";
 
 const request = {
     data: {
@@ -16,21 +15,23 @@ const request = {
         extraField: "notNeeded", // This still exists at runtime
         anotherExtraField: "stillNotNeeded", // This too
         role: "blabla",
+        a: "a",
     }
 };
 
 const realPicker = createPicker<Type>();
 
-const createBiggerPicker = <T = any>() => {
+/*const createBiggerPicker = <T = any>() => {
     return createGenericPicker2<T>();
-}
+}*/
 
-const createGenericPicker2 = <T = any>() => {
-    return createPicker<T>();
-}
+/*const createGenericPicker2 = <T = any>() => {
+    //return createPicker<T>({ignoreErrors: true});
+    return (_: any) => ({}) as T;
+}*/
 
 const createGenericPicker = <T = any>() => {
-    return createPicker<T>();
+    return createPicker<T>({ignoreErrors: true});
 }
 
 function App() {
@@ -38,16 +39,18 @@ function App() {
 
     try {
         const picker = createGenericPicker<Type>();
-        const picker2 = createBiggerPicker<User>();
+        const picker2 = createGenericPicker<User>();
         const filteredData = picker(request.data);
         const filteredData2 = picker2(request.data);
-        console.log("filteredData", filteredData, filteredData2, realPicker(request.data));
+        console.log("generic With Admin", filteredData);
+        console.log("generic With User", filteredData2);
+        console.log("realPicker", realPicker(request.data));
     } catch (e) {
         console.error("Error during data picking:", e);
     }
 
     useEffect(() => {
-        console.log("Hello from App: ", HelloBOSS);
+        //console.log("Hello from App: ", HelloBOSS);
     }, [count]);
 
     return (

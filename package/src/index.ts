@@ -1,4 +1,18 @@
 /**
+ * Options for the ts-runtime-picker functions.
+ */
+interface Options {
+    ignoreErrors?: boolean;
+}
+
+type PickerOptions = Options;
+type FullPickerOptions = Options;
+
+export const DEFAULT_OPTIONS: Options = {
+    ignoreErrors: false,
+}
+
+/**
  * Creates a function that picks and returns a subset of properties from an object of type `T`.
  * The returned partial object includes only the specified fields defined in `T`.
  *
@@ -9,9 +23,14 @@
  *
  * @return A function that takes an object and returns a partial object containing selected properties.
  */
-export function createPicker<T>(): (obj: Record<string, any>) => Partial<T> {
+export function createPicker<T>({ignoreErrors}: PickerOptions = DEFAULT_OPTIONS): (obj: Record<string, any>) => Partial<T> {
+    if (ignoreErrors) {
+        console.warn("createPicker is not replaced with a real implementation and the ignoreErrors option is set to true. This will return an empty object.");
+        return () => ({});
+    }
+    //TODO: add a proper link to docs.
     throw new Error(
-        "createPicker is a placeholder. Use the ts-runtime-picker plugin to transform it during build."
+        "createPicker is a placeholder. Use the ts-runtime-picker plugin to transform it during build.\n make sure to implement the plugin in your build process."
     );
 }
 
@@ -27,8 +46,13 @@ export function createPicker<T>(): (obj: Record<string, any>) => Partial<T> {
  *
  * @return A function that takes an object and returns the full object of type `T`.
  */
-export function createFullPicker<T>(): (obj: Record<string, any>) => T {
+export function createFullPicker<T>({ignoreErrors}: FullPickerOptions = DEFAULT_OPTIONS): (obj: Record<string, any>) => T {
+    if (ignoreErrors) {
+        console.warn("createFullPicker is not replaced with a real implementation and the ignoreErrors option is set to true. This will return an empty object.");
+        return () => ({} as T);
+    }
+    //TODO: add a proper link to docs.
     throw new Error(
-        "createFullPicker is a placeholder. Use the ts-runtime-picker plugin to transform it during build."
+        "createFullPicker is a placeholder. Use the ts-runtime-picker plugin to transform it during build.\n make sure to implement the plugin in your build process."
     );
 }
