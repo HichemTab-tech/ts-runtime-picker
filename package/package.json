@@ -20,7 +20,7 @@
     }
   },
   "scripts": {
-    "build": "vite build && node add-banner.js",
+    "build": "vite build && node scripts/add-banner.js",
     "build:watch": "vite build --watch",
     "dev": "vite build --watch",
     "demo": "cd demo && vite",
