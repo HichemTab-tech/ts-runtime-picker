@@ -1,15 +1,18 @@
 import {
     ArrowFunction,
-    CallExpression,
+    CallExpression, ClassDeclaration, ClassExpression,
     FunctionDeclaration,
-    FunctionExpression,
+    FunctionExpression, MethodDeclaration,
     Node,
     SyntaxKind,
     Type,
 } from "ts-morph";
 
 // Define a type for the functions we are looking for.
-export type GenericContainer = FunctionDeclaration | ArrowFunction | FunctionExpression;
+export type GenericContainer = FunctionContainer | ClassContainer;
+
+export type FunctionContainer = FunctionDeclaration | ArrowFunction | FunctionExpression | MethodDeclaration;
+export type ClassContainer = ClassDeclaration | ClassExpression;
 
 /**
  * Represents a segment in the chain of function calls leading to a concrete type usage.
@@ -53,9 +56,25 @@ export interface ConcreteUsage {
  * @returns The container function node, or undefined if not found.
  */
 export function findContainingFunction(node: Node): GenericContainer | undefined {
-    return node.getFirstAncestorByKind(SyntaxKind.FunctionDeclaration) ||
+    const container = node.getFirstAncestorByKind(SyntaxKind.FunctionDeclaration) ||
         node.getFirstAncestorByKind(SyntaxKind.ArrowFunction) ||
-        node.getFirstAncestorByKind(SyntaxKind.FunctionExpression);
+        node.getFirstAncestorByKind(SyntaxKind.FunctionExpression) ||
+        node.getFirstAncestorByKind(SyntaxKind.MethodDeclaration);
+
+    if (!container) {
+        console.warn("No containing function found for node:", node.getText());
+        const fallback = node.getFirstAncestorByKind(SyntaxKind.ClassExpression) ||
+            node.getFirstAncestorByKind(SyntaxKind.ClassDeclaration);
+        if (fallback) {
+            console.warn("Falling back to class context:", fallback.getText());
+            // If we found a class, we can return it as a container.
+            // This is useful for methods inside classes.
+            return fallback as GenericContainer;
+        }
+        return undefined;
+    }
+
+    return container;
 }
 
 /**
@@ -71,6 +90,7 @@ export function traceToConcreteUsages(funcNode: GenericContainer, targetTypePara
 
     // Find the first level of usages
     const usages = findFunctionUsages(funcNode);
+    //TODO: for type SyntaxKind.MethodDeclaration, the usages is empty, fix it.
 
     for (const usage of usages) {
         // Find the index of the generic parameter in the definition (e.g., <T, P>)

@@ -21,6 +21,12 @@ const request = {
     }
 };
 
+
+function MyComponent <X = {a: string;c: string;}>() {
+    return <h1><pre>{JSON.stringify((createPicker<X>())(request))}</pre></h1>
+}
+
+
 const realPicker = createPicker<Type>();
 
 const createEvenBiggerPicker = <T = any, P = any>() => {
@@ -33,6 +39,25 @@ const createBiggerPicker = <T = any, P = any>() => {
         createGenericPicker2<T>(),
         createGenericPicker2<P>()
     ];
+}
+
+class MyClass<X> {
+    data: any;
+    constructor(data: any) {
+        this.data = data;
+    }
+
+    getText<F>() {
+        return JSON.stringify((createPicker<F>())(this.data));
+    }
+
+    /*getText2() {
+        return JSON.stringify((createPicker<X>({ignoreErrors: true}))(this.data));
+    }*/
+
+    static getTHing() {
+
+    }
 }
 
 const createGenericPicker2 = <T = any>() => {
@@ -87,6 +112,8 @@ function App() {
             </p>
             <div className="card">
                 <Component/>
+                {/*<MyComponent/>*/}
+                <pre>{(new MyClass<Type>(request.data)).getText<Type>()}</pre>
             </div>
         </>
     )

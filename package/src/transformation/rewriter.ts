@@ -1,6 +1,6 @@
 import { CallExpression, FunctionDeclaration, ArrowFunction, FunctionExpression } from "ts-morph";
-
-type GenericContainer = FunctionDeclaration | ArrowFunction | FunctionExpression;
+import {FunctionContainer, GenericContainer} from "./analyzer";
+import {containerIsClass, containerIsFunction} from "../lib/utils";
 
 /**
  * Adds a new argument to a function call.
@@ -18,11 +18,21 @@ export function addArgumentToCall(call: CallExpression, properties: string[]|str
  * @param baseName
  */
 export function addParameterToFunctionSignature(funcNode: GenericContainer, baseName: string) {
-    // Check how many picker keys we've already added to find the next index.
-    const existingParams = funcNode.getParameters().filter(p => p.getName().startsWith(baseName)).length;
-    const uniqueName = `${baseName}_${existingParams}`;
+    let uniqueName = "";
+    if (containerIsFunction(funcNode)) {
+        // Check how many picker keys we've already added to find the next index.
+        const existingParams = funcNode.getParameters().filter(p => p.getName().startsWith(baseName)).length;
+        uniqueName = `${baseName}_${existingParams}`;
 
-    funcNode.addParameter({ name: uniqueName, type: "string[]" });
+        funcNode.addParameter({ name: uniqueName, type: "string[]" });
+    }
+    else if (containerIsClass(funcNode)) {
+        // Check how many picker keys we've already added to find the next index.
+        const existingParams = funcNode.getConstructors()[0].getParameters().filter(p => p.getName().startsWith(baseName)).length;
+        uniqueName = `${baseName}_${existingParams}`;
+
+        funcNode.getConstructors()[0].addParameter({ name: uniqueName, type: "string[]" });
+    }
 
     return uniqueName;
 }
