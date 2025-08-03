@@ -25,9 +25,6 @@ export default function TsRuntimePickerVitePlugin(): PluginOption {
                 return;
             }
 
-            console.log(`[ts-runtime-picker] Change detected in a tracked type definition: ${file}`);
-
-
             // Surgically update the ts-morph project
             if (!invalidateOneFile(file)) return;
 
@@ -49,8 +46,6 @@ export default function TsRuntimePickerVitePlugin(): PluginOption {
             }
 
             if (dependentModulesToUpdate.length > 0) {
-                console.log(`[ts-runtime-picker] Found ${dependentModulesToUpdate.length} module(s) to update.`);
-
                 //Invalidate modules and notify the client
                 for (const mod of dependentModulesToUpdate) {
                     server.moduleGraph.invalidateModule(mod);
@@ -69,7 +64,7 @@ export default function TsRuntimePickerVitePlugin(): PluginOption {
                 });
             }
 
-            // We return the list of modules we've handled so Vite's core HMR logic
+            // We return the list of modules we've handled, so Vite's core HMR logic
             // doesn't try to process them again.
             return dependentModulesToUpdate;
         }

@@ -15,10 +15,16 @@ export function addArgumentToCall(call: CallExpression, properties: string[]|str
 /**
  * Adds a new parameter to a function's signature.
  * @param funcNode The function definition to modify.
- * @param argName The name of the new parameter to add.
+ * @param baseName
  */
-export function addParameterToFunctionSignature(funcNode: GenericContainer, argName: string) {
-    funcNode.addParameter({ name: argName, type: "string[]" });
+export function addParameterToFunctionSignature(funcNode: GenericContainer, baseName: string) {
+    // Check how many picker keys we've already added to find the next index.
+    const existingParams = funcNode.getParameters().filter(p => p.getName().startsWith(baseName)).length;
+    const uniqueName = `${baseName}_${existingParams}`;
+
+    funcNode.addParameter({ name: uniqueName, type: "string[]" });
+
+    return uniqueName;
 }
 
 /**

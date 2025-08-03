@@ -16,13 +16,20 @@ const request = {
         anotherExtraField: "stillNotNeeded", // This too
         role: "blabla",
         a: "a",
+        b: "b",
+        c: "c",
     }
 };
 
 const realPicker = createPicker<Type>();
 
+const createEvenBiggerPicker = <T = any, P = any>() => {
+    return createBiggerPicker<T, P>();
+}
+
 const createBiggerPicker = <T = any, P = any>() => {
     return [
+        createGenericPicker2<T>(),
         createGenericPicker2<T>(),
         createGenericPicker2<P>()
     ];
@@ -40,11 +47,13 @@ function App() {
     const [count, setCount] = useState(0);
 
     try {
-        const picker = createBiggerPicker<Type, User>();
+        const picker = createEvenBiggerPicker<Type, User>();
         const filteredData = picker[0](request.data);
         const filteredData2 = picker[1](request.data);
+        const filteredData3 = picker[2]?.(request.data)??null;
         console.log("generic With Admin", filteredData);
-        console.log("generic With User", filteredData2);
+        console.log("generic With Admin", filteredData2);
+        console.log("generic With User 2", filteredData3);
         console.log("realPicker", realPicker(request.data));
     } catch (e) {
         console.error("Error during data picking:", e);
