@@ -1,4 +1,4 @@
-import { Project, SyntaxKind } from "ts-morph";
+import {Project, SyntaxKind, Type} from "ts-morph";
 
 export const fileToTypes = new Map<string, Set<string>>();
 
@@ -83,17 +83,64 @@ export function transform(code: string, filePath: string): string {
                 throw new Error(`Couldn’t resolve type for ${typeArg.getText()}`);
             }
 
-            // Now grab every property (including inherited ones) from that type
-            const props = pickedType.getProperties().map(p => `"${p.getName()}"`);
+            if (pickedType.isUnionOrIntersection()) {
+                throw new Error(`Cannot pick from union or intersection types`);
+            }
+
+            type PropArray = (string|{name: string; props: PropArray})[]
+
+            const getProperties = (type: Type): PropArray => {
+
+                return type.getProperties().map(prop => {
+                    // Get the value declaration
+                    const valueDeclaration = prop.getValueDeclaration();
+
+                    if (valueDeclaration) {
+                        // Get the type node and actual type
+                        const propertyType = valueDeclaration.getType();
+
+                        const isInterface = propertyType.isInterface();
+                        const isClass = propertyType.isClass();
+                        const isObject = propertyType.isObject();
+
+                        // If it's an interface or class, you can get its properties recursively
+                        if (isInterface || isClass || isObject) {
+                            return {
+                                name: prop.getName(),
+                                props: getProperties(propertyType)
+                            }
+                        }
+                    }
+                    return prop.getName();
+                });
+            }
+
+            const props = getProperties(pickedType);
+
+            console.log("pp", props, JSON.stringify(props));
 
             // Replace the call with a runtime picker that uses those keys
             call.replaceWithText(`(_obj: any) => {
-          const _keys: string[] = [${props.join(",")}];
-          return _keys.reduce((_acc: {[k: string]: any}, _key: string) => {
-            if (_key in _obj) _acc[_key] = _obj[_key];
+    const _keys: any[] = JSON.parse('${JSON.stringify(props)}');
+    const reduceThisOne = (_keys: any, _obj: any) => {
+        return _keys.reduce((_acc: {[k: string]: any}, _key: any) => {
+            if (typeof _obj === 'string') return _obj;
+        
+            if (typeof _key !== 'string') {
+                const { name, props } = _key;
+                if (name in _obj) {
+                    _acc[name] = reduceThisOne(props, _obj[name]);
+                }
+            }
+            else {
+                if (_key in _obj) _acc[_key] = _obj[_key];
+            }
             return _acc;
-          }, {});
-        }`);
+        }, {});
+    }
+    
+    return reduceThisOne(_keys, _obj);
+}`);
         }
     }
 
