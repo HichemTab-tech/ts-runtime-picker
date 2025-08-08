@@ -16,12 +16,20 @@ const request = {
         extraField: "notNeeded", // This still exists at runtime
         anotherExtraField: "stillNotNeeded", // This too
         role: "blabla",
+        ssoList: {
+            google: {
+                id: "google",
+                value: "google",
+                token: "googleToken",
+            },
+            x: "x"
+        }
     }
 };
 
 const realPicker = createPicker<Type>();
 
-const createBiggerPicker = <T = any>() => {
+/*const createBiggerPicker = <T = any>() => {
     return createGenericPicker2<T>();
 }
 
@@ -31,17 +39,18 @@ const createGenericPicker2 = <T = any>() => {
 
 const createGenericPicker = <T = any>() => {
     return createPicker<T>();
-}
+}*/
 
 function App() {
     const [count, setCount] = useState(0);
 
     try {
-        const picker = createGenericPicker<Type>();
+        /*const picker = createGenericPicker<Type>();
         const picker2 = createBiggerPicker<User>();
         const filteredData = picker(request.data);
-        const filteredData2 = picker2(request.data);
-        console.log("filteredData", filteredData, filteredData2, realPicker(request.data));
+        const filteredData2 = picker2(request.data);*/
+        //console.log("filteredData", filteredData, filteredData2, realPicker(request.data));
+        console.log("realPicker", realPicker(request.data));
     } catch (e) {
         console.error("Error during data picking:", e);
     }

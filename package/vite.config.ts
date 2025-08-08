@@ -1,6 +1,7 @@
 import {defineConfig} from 'vite';
 import {resolve} from 'path';
 import {configDefaults} from 'vitest/config';
+import dts from 'vite-plugin-dts';
 
 // noinspection JSUnusedGlobalSymbols
 export default defineConfig({
@@ -35,13 +36,6 @@ export default defineConfig({
     },
     // Ensure TypeScript type declarations are generated
     plugins: [
-        {
-            name: 'generate-dts',
-            closeBundle() {
-                // We'll still use tsc to generate type declarations
-                const {execSync} = require('child_process');
-                execSync('tsc --emitDeclarationOnly --declaration --outDir dist');
-            }
-        }
+        dts()
     ]
 });
