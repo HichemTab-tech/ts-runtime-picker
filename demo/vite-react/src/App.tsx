@@ -5,6 +5,7 @@ import './App.css'
 import {createPicker} from "ts-runtime-picker";
 import type {Admin as Type, User} from "./types";
 import Component from "./Component";
+import {HelloBOSS} from "virtual:hello-boss";
 
 const request = {
     data: {
@@ -18,6 +19,14 @@ const request = {
         a: "a",
         b: "b",
         c: "c",
+        ssoList: {
+            google: {
+                id: "google",
+                value: "google",
+                token: "googleToken",
+            },
+            x: "x"
+        }
     }
 };
 
