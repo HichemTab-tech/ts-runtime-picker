@@ -36,7 +36,7 @@ function MyComponent <X = {a: string;c: string;}>() {
 }
 
 
-const realPicker = createPicker<Type>();
+const realPicker = createPicker<Type>({recursive: false});
 
 const createEvenBiggerPicker = <T = any, P = any>() => {
     return createBiggerPicker<T, P>();
@@ -57,7 +57,7 @@ class MyClass<X> {
     }
 
     getText<F>() {
-        return JSON.stringify((createPicker<F>())(this.data));
+        return JSON.stringify((createPicker<F>({ignoreErrors: true}))(this.data));
     }
 
     /*getText2() {

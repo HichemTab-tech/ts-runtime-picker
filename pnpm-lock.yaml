@@ -1171,6 +1171,10 @@ packages:
   flatted@3.3.3:
     resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
 
+  fs-extra@11.3.1:
+    resolution: {integrity: sha512-eXvGGwZ5CL17ZSwHWd3bbgk7UUpF6IFHtP57NYYakPvHOs8GDgDe5KJI36jIJzDkJ6eJjuzRA8eBQb6SkKue0g==}
+    engines: {node: '>=14.14'}
+
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -1576,11 +1580,6 @@ packages:
 
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
-    hasBin: true
-
-  semver@7.5.4:
-    resolution: {integrity: sha512-1bCSESV6Pv+i21Hvpxp3Dx+pSD8lIPt8uVjRrxAUt/nbswYc+tK6Y2btiULjd4+fnq15PX+nqQDC7Oft7WkwcA==}
-    engines: {node: '>=10'}
     hasBin: true
 
   semver@7.5.4:
@@ -2311,6 +2310,40 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.46.2':
     optional: true
 
+  '@rushstack/node-core-library@5.14.0(@types/node@24.1.0)':
+    dependencies:
+      ajv: 8.13.0
+      ajv-draft-04: 1.0.0(ajv@8.13.0)
+      ajv-formats: 3.0.1(ajv@8.13.0)
+      fs-extra: 11.3.1
+      import-lazy: 4.0.0
+      jju: 1.4.0
+      resolve: 1.22.10
+      semver: 7.5.4
+    optionalDependencies:
+      '@types/node': 24.1.0
+
+  '@rushstack/rig-package@0.5.3':
+    dependencies:
+      resolve: 1.22.10
+      strip-json-comments: 3.1.1
+
+  '@rushstack/terminal@0.15.4(@types/node@24.1.0)':
+    dependencies:
+      '@rushstack/node-core-library': 5.14.0(@types/node@24.1.0)
+      supports-color: 8.1.1
+    optionalDependencies:
+      '@types/node': 24.1.0
+
+  '@rushstack/ts-command-line@5.0.2(@types/node@24.1.0)':
+    dependencies:
+      '@rushstack/terminal': 0.15.4(@types/node@24.1.0)
+      '@types/argparse': 1.0.38
+      argparse: 1.0.10
+      string-argv: 0.3.2
+    transitivePeerDependencies:
+      - '@types/node'
+
   '@ts-morph/common@0.27.0':
     dependencies:
       fast-glob: 3.3.3
@@ -2519,6 +2552,51 @@ snapshots:
       loupe: 3.2.0
       tinyrainbow: 2.0.0
 
+  '@volar/language-core@2.4.23':
+    dependencies:
+      '@volar/source-map': 2.4.23
+
+  '@volar/source-map@2.4.23': {}
+
+  '@volar/typescript@2.4.23':
+    dependencies:
+      '@volar/language-core': 2.4.23
+      path-browserify: 1.0.1
+      vscode-uri: 3.1.0
+
+  '@vue/compiler-core@3.5.18':
+    dependencies:
+      '@babel/parser': 7.28.0
+      '@vue/shared': 3.5.18
+      entities: 4.5.0
+      estree-walker: 2.0.2
+      source-map-js: 1.2.1
+
+  '@vue/compiler-dom@3.5.18':
+    dependencies:
+      '@vue/compiler-core': 3.5.18
+      '@vue/shared': 3.5.18
+
+  '@vue/compiler-vue2@2.7.16':
+    dependencies:
+      de-indent: 1.0.2
+      he: 1.2.0
+
+  '@vue/language-core@2.2.0(typescript@5.9.2)':
+    dependencies:
+      '@volar/language-core': 2.4.23
+      '@vue/compiler-dom': 3.5.18
+      '@vue/compiler-vue2': 2.7.16
+      '@vue/shared': 3.5.18
+      alien-signals: 0.4.14
+      minimatch: 9.0.5
+      muggle-string: 0.4.1
+      path-browserify: 1.0.1
+    optionalDependencies:
+      typescript: 5.9.2
+
+  '@vue/shared@3.5.18': {}
+
   '@webassemblyjs/ast@1.14.1':
     dependencies:
       '@webassemblyjs/helper-numbers': 1.13.2
@@ -2646,20 +2724,6 @@ snapshots:
       fast-deep-equal: 3.1.3
       fast-json-stable-stringify: 2.1.0
       json-schema-traverse: 0.4.1
-      uri-js: 4.4.1
-
-  ajv@8.12.0:
-    dependencies:
-      fast-deep-equal: 3.1.3
-      json-schema-traverse: 1.0.0
-      require-from-string: 2.0.2
-      uri-js: 4.4.1
-
-  ajv@8.13.0:
-    dependencies:
-      fast-deep-equal: 3.1.3
-      json-schema-traverse: 1.0.0
-      require-from-string: 2.0.2
       uri-js: 4.4.1
 
   ajv@8.12.0:
@@ -2984,6 +3048,12 @@ snapshots:
   flat@5.0.2: {}
 
   flatted@3.3.3: {}
+
+  fs-extra@11.3.1:
+    dependencies:
+      graceful-fs: 4.2.11
+      jsonfile: 6.1.0
+      universalify: 2.0.1
 
   fsevents@2.3.3:
     optional: true
@@ -3512,6 +3582,25 @@ snapshots:
       - terser
       - tsx
       - yaml
+
+  vite-plugin-dts@4.5.4(@types/node@24.1.0)(rollup@4.46.2)(typescript@5.9.2)(vite@7.0.6(@types/node@24.1.0)(terser@5.43.1)):
+    dependencies:
+      '@microsoft/api-extractor': 7.52.10(@types/node@24.1.0)
+      '@rollup/pluginutils': 5.2.0(rollup@4.46.2)
+      '@volar/typescript': 2.4.23
+      '@vue/language-core': 2.2.0(typescript@5.9.2)
+      compare-versions: 6.1.1
+      debug: 4.4.1
+      kolorist: 1.8.0
+      local-pkg: 1.1.1
+      magic-string: 0.30.17
+      typescript: 5.9.2
+    optionalDependencies:
+      vite: 7.0.6(@types/node@24.1.0)(terser@5.43.1)
+    transitivePeerDependencies:
+      - '@types/node'
+      - rollup
+      - supports-color
 
   vite@7.0.6(@types/node@24.1.0)(terser@5.43.1):
     dependencies:

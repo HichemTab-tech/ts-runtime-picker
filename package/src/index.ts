@@ -1,15 +1,17 @@
 /**
  * Options for the ts-runtime-picker functions.
  */
-interface Options {
-    ignoreErrors?: boolean;
+export interface Options {
+    ignoreErrors: boolean;
+    recursive: boolean
 }
 
-type PickerOptions = Options;
-type FullPickerOptions = Options;
+type PickerOptions = Partial<Options>;
+type FullPickerOptions = Partial<Options>;
 
 export const DEFAULT_OPTIONS: Options = {
     ignoreErrors: false,
+    recursive: true
 }
 
 /**
@@ -23,15 +25,10 @@ export const DEFAULT_OPTIONS: Options = {
  *
  * @return A function that takes an object and returns a partial object containing selected properties.
  */
-export function createPicker<T>({ignoreErrors}: PickerOptions = DEFAULT_OPTIONS): (obj: Record<string, any>) => Partial<T> {
-    if (ignoreErrors) {
-        console.warn("createPicker is not replaced with a real implementation and the ignoreErrors option is set to true. This will return an empty object.");
-        return () => ({});
-    }
-    //TODO: add a proper link to docs.
-    throw new Error(
-        "createPicker is a placeholder. Use the ts-runtime-picker plugin to transform it during build.\n make sure to implement the plugin in your build process."
-    );
+export function createPicker<T>(options: PickerOptions = DEFAULT_OPTIONS): (obj: Record<string, any>) => Partial<T> {
+    const {ignoreErrors} = buildOptions(options, "createPicker");
+    if (ignoreErrors) return () => ({});
+    return throwPlaceholderError("createPicker");
 }
 
 /**
@@ -46,13 +43,32 @@ export function createPicker<T>({ignoreErrors}: PickerOptions = DEFAULT_OPTIONS)
  *
  * @return A function that takes an object and returns the full object of type `T`.
  */
-export function createFullPicker<T>({ignoreErrors}: FullPickerOptions = DEFAULT_OPTIONS): (obj: Record<string, any>) => T {
-    if (ignoreErrors) {
-        console.warn("createFullPicker is not replaced with a real implementation and the ignoreErrors option is set to true. This will return an empty object.");
-        return () => ({} as T);
+export function createFullPicker<T>(options: FullPickerOptions = DEFAULT_OPTIONS): (obj: Record<string, any>) => T {
+    const {ignoreErrors} = buildOptions(options, "createFullPicker");
+    if (ignoreErrors) return () => ({} as T);
+    return throwPlaceholderError("createFullPicker");
+}
+
+type ThisModuleFunctions = {
+    [K in keyof typeof import("./index")]: (typeof import("./index"))[K] extends Function ? K : never
+}[keyof typeof import("./index")];
+
+
+const buildOptions = (options: Partial<Options>, fn: ThisModuleFunctions) => {
+    options = {...DEFAULT_OPTIONS, ...options};
+    if (options.ignoreErrors) {
+        console.warn(`${fn} is not replaced with a real implementation and the ignoreErrors option is set to true. This will return an empty object.`);
     }
+    return options;
+}
+
+/**
+ * @exception Error
+ * @param fn
+ */
+const throwPlaceholderError = (fn: ThisModuleFunctions): never => {
     //TODO: add a proper link to docs.
     throw new Error(
-        "createFullPicker is a placeholder. Use the ts-runtime-picker plugin to transform it during build.\n make sure to implement the plugin in your build process."
+        `${fn} is a placeholder. Use the ts-runtime-picker plugin to transform it during build.\n make sure to implement the plugin in your build process.`
     );
 }

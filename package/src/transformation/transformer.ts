@@ -1,8 +1,7 @@
 import {CallExpression, SyntaxKind} from "ts-morph";
 import {fileToTypes, project, typeToFile} from "../plugin/state";
-import * as analyzer from "./analyzer";
-import {GenericContainer, getUniqueTypeWithIndex} from "./analyzer";
-import * as rewriter from "./rewriter";
+import {GenericContainer, Analyzer} from "./analyzer";
+import {Rewriter} from "./rewriter";
 import {generateRandomId} from "../lib/utils";
 
 export function transformCode(code: string, filePath: string): string {
@@ -51,12 +50,24 @@ export function transformCode(code: string, filePath: string): string {
         if (call.wasForgotten()) continue; // Skip nodes removed in a previous iteration.
         const exprText = call.getExpression().getText();
         if (exprText === createPickerAlias && call.getTypeArguments().length > 0) {
+            const optionsArgument = call.getArguments()[0];
+            let partialOptions = {};
+            if (optionsArgument) {
+                partialOptions = Analyzer.resolveValue(optionsArgument);
+            }
             const typeArg = call.getTypeArguments()[0];
             const pickedType = typeArg.getType();
 
             if (!pickedType) {
                 continue;
             }
+
+            if (pickedType.isUnionOrIntersection()) {
+                throw new Error(`Cannot pick from union or intersection types`);
+            }
+
+            const analyzer = new Analyzer(partialOptions);
+            const rewriter = new Rewriter(partialOptions);
 
             if (pickedType.isTypeParameter()) {
                 const container = analyzer.findContainingFunction(call);
@@ -110,12 +121,12 @@ export function transformCode(code: string, filePath: string): string {
                     const callSiteId = callIdMap.get(usage.callSite)!;
                     // Rewrite the final call site. This is always unique per usage, so it's safe.
                     let existingArg = argumentsCallForGenericTypes.find(a => {
-                        return getUniqueTypeWithIndex(usage.type, usage.typeParamIndex) === a.typeUnique && a.callId === callSiteId;
+                        return analyzer.getUniqueTypeWithIndex(usage.type, usage.typeParamIndex) === a.typeUnique && a.callId === callSiteId;
                     });
                     if (!existingArg) {
                         rewriter.addArgumentToCall(usage.callSite, analyzer.getPropertiesOfType(usage.type));
                         argumentsCallForGenericTypes.push({
-                            typeUnique: getUniqueTypeWithIndex(usage.type, usage.typeParamIndex),
+                            typeUnique: analyzer.getUniqueTypeWithIndex(usage.type, usage.typeParamIndex),
                             callId: callSiteId,
                         });
                     }
@@ -172,14 +183,10 @@ export function transformCode(code: string, filePath: string): string {
                     if (!call.wasForgotten()) rewriter.replacePickerCallWithImplementation(call, baseArgName + "_0");
                 }
             } else {
-                const props = pickedType.getProperties().map(p => `"${p.getName()}"`);
-                call.replaceWithText(`(_obj: any) => {
-                  const _keys: string[] = [${props.join(",")}];
-                  return _keys.reduce((_acc: {[k: string]: any}, _key: string) => {
-                    if (_key in _obj) _acc[_key] = _obj[_key];
-                    return _acc;
-                  }, {});
-                }`);
+
+                const props = analyzer.getPropertiesOfType(pickedType);
+
+                rewriter.replacePickerCallWithImplementation(call, props);
             }
         }
     }
