@@ -8,6 +8,7 @@ import {
     Type,
 } from "ts-morph";
 import {BasedOnOptions} from "./BasedOnOptions";
+import { getResolverForNode } from "./resolver-factory";
 
 // Define a type for the functions we are looking for.
 export type GenericContainer = FunctionContainer | ClassContainer;
@@ -144,31 +145,12 @@ export class Analyzer extends BasedOnOptions{
      * @returns An array of the CallExpression nodes where the function is used.
      */
     findFunctionUsages(funcNode: GenericContainer): CallExpression[] {
-        let references;
-        if (!(funcNode instanceof ArrowFunction)) {
-            references = funcNode.findReferencesAsNodes();
+        const resolver = getResolverForNode(funcNode);
+        if (!resolver) {
+            console.warn("No resolver found for node:", funcNode.getKindName());
+            return [];
         }
-        else{
-            // check if it's assigned to a variable
-            const variableDeclaration = funcNode.getFirstAncestorByKind(SyntaxKind.VariableDeclaration);
-            if (variableDeclaration) {
-                references = variableDeclaration.findReferencesAsNodes();
-            }
-            else {
-                console.warn("Arrow functions with no variable declaration are not supported for usage analysis.");
-                return [];
-            }
-        }
-        const usageCalls: CallExpression[] = [];
-
-        for (const ref of references) {
-            // The reference is the function name (identifier). We need its parent, the CallExpression.
-            const callExpression = ref.getParentIfKind(SyntaxKind.CallExpression);
-            if (callExpression) {
-                usageCalls.push(callExpression);
-            }
-        }
-        return usageCalls;
+        return resolver.findUsages(funcNode);
     }
 
     /**
@@ -221,17 +203,6 @@ export class Analyzer extends BasedOnOptions{
      */
     getUniqueTypeWithIndex = (type: Type, index: number): string => {
         return type.getText() + "_" + index;
-    }
-
-    /**
-     * Generates a unique identifier for a given generic node by combining its file path and start position.
-     *
-     * @param {Node} node - The node for which the unique identifier needs to be generated.
-     * @return {string} A unique identifier string for the provided node.
-     */
-    getUniqueIdForGenericNode(node: Node): string {
-        // A combination of file path and start position is a reliable unique identifier for a node.
-        return `${node.getSourceFile().getFilePath()}:${node.getStart()}`;
     }
 
     static resolveValue(node: Node): any {
