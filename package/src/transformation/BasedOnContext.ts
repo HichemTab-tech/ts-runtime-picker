@@ -1,9 +1,12 @@
 import {DEFAULT_OPTIONS, Options} from "../index";
+import {CallExpression} from "ts-morph";
 
-export abstract class BasedOnOptions {
+export abstract class BasedOnContext {
     protected options: Options;
-    constructor(partialOptions: Partial<Options>) {
+    protected readonly call: CallExpression;
+    constructor(partialOptions: Partial<Options>, call: CallExpression) {
         this.options = this.#buildOptions(partialOptions);
+        this.call = call;
     }
 
 

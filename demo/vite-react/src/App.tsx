@@ -1,3 +1,6 @@
+// noinspection JSUnusedLocalSymbols
+// @ts-ignore
+
 import {useEffect, useState} from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
@@ -5,7 +8,7 @@ import './App.css'
 import {createPicker} from "ts-runtime-picker";
 import type {Admin as Type, User} from "./types";
 import Component from "./Component";
-import {HelloBOSS} from "virtual:hello-boss";
+import {PrintR} from "./lib/utils";
 
 const request = {
     data: {
@@ -31,8 +34,9 @@ const request = {
 };
 
 
-function MyComponent <X = {a: string;c: string;}>() {
-    return <h1><pre>{JSON.stringify((createPicker<X>())(request))}</pre></h1>
+// @ts-ignore
+function MyComponent <X2 = {a: string;c: string;}>() {
+    return <h1><pre>{JSON.stringify((createPicker<X2>())(request))}</pre></h1>
 }
 
 
@@ -50,19 +54,37 @@ const createBiggerPicker = <T = any, P = any>() => {
     ];
 }
 
+const f = <F extends any, F2 extends any>() => {
+    return (new MyClass(request.data)).getText<F, F2>()
+}
+
+const f2 = <F extends any, F2 extends any>() => {
+    return (new MyClass<F>(request.data)).getText2<F2>()
+}
+
 class MyClass<X> {
     data: any;
     constructor(data: any) {
         this.data = data;
     }
 
-    getText<F>() {
-        return JSON.stringify((createPicker<F>({ignoreErrors: true}))(this.data));
+    getText<F, FOO>() {
+        return [
+            createPicker<F>({ignoreErrors: true})(this.data),
+            createPicker<FOO>({ignoreErrors: true})(this.data)
+        ];
     }
 
-    /*getText2() {
-        return JSON.stringify((createPicker<X>({ignoreErrors: true}))(this.data));
-    }*/
+    getText2<V>() {
+        return this.getText3<V>();
+    }
+
+    getText3<V>() {
+        return [
+            createPicker<X>({ignoreErrors: true})(this.data),
+            createPicker<V>({ignoreErrors: true})(this.data)
+        ];
+    }
 
     static getTHing() {
 
@@ -122,7 +144,9 @@ function App() {
             <div className="card">
                 <Component/>
                 {/*<MyComponent/>*/}
-                <pre>{(new MyClass<Type>(request.data)).getText<Type>()}</pre>
+                <PrintR obj={f<User, Type>()}/>
+                <br/>
+                <PrintR obj={f2<User, Type>()}/>
             </div>
         </>
     )

@@ -7,7 +7,7 @@ import {
     SyntaxKind,
     Type,
 } from "ts-morph";
-import {BasedOnOptions} from "./BasedOnOptions";
+import {BasedOnContext} from "./BasedOnContext";
 import { getResolverForNode } from "./resolver-factory";
 
 // Define a type for the functions we are looking for.
@@ -55,31 +55,37 @@ export interface ConcreteUsage {
 }
 
 
-export class Analyzer extends BasedOnOptions{
+export class Analyzer extends BasedOnContext{
 
     /**
      * Finds the function that contains a given node.
      * @param node The starting node (our `createPicker<T>()` call).
+     * @param targetTypeParam The type parameter we are interested in (e.g., T in createInnerPicker<T>).
      * @returns The container function node, or undefined if not found.
      */
-    findContainingFunction(node: Node): GenericContainer | undefined {
+    findContainingFunction(node: Node, targetTypeParam: Type): GenericContainer | undefined {
         const container = node.getFirstAncestorByKind(SyntaxKind.FunctionDeclaration) ||
             node.getFirstAncestorByKind(SyntaxKind.ArrowFunction) ||
             node.getFirstAncestorByKind(SyntaxKind.FunctionExpression) ||
-            node.getFirstAncestorByKind(SyntaxKind.MethodDeclaration);
+            node.getFirstAncestorByKind(SyntaxKind.MethodDeclaration) ||
+            node.getFirstAncestorByKind(SyntaxKind.ClassDeclaration) ||
+            node.getFirstAncestorByKind(SyntaxKind.ClassExpression);
 
         if (!container) {
             console.warn("No containing function found for node:", node.getText());
-            const fallback = node.getFirstAncestorByKind(SyntaxKind.ClassExpression) ||
-                node.getFirstAncestorByKind(SyntaxKind.ClassDeclaration);
-            if (fallback) {
-                console.warn("Falling back to class context:", fallback.getText());
-                // If we found a class, we can return it as a container.
-                // This is useful for methods inside classes.
-                return fallback as GenericContainer;
-            }
             return undefined;
         }
+
+
+        // Find the index of the generic parameter in the definition (e.g., <T, P>)
+        const funcDefParams = container.getTypeParameters();
+        console.log("funcDefParams", funcDefParams.map(p => p.getSymbol()?.getName()), targetTypeParam.getSymbol()?.getName());
+        const paramIndex = funcDefParams.findIndex(p => {
+            const symbol = p.getSymbol();
+            return symbol && symbol.getName() === targetTypeParam.getSymbol()?.getName();
+        });
+
+        if (paramIndex === -1) return this.findContainingFunction(container, targetTypeParam); // This function doesn't define the generic we're looking for.
 
         return container;
     }
@@ -97,7 +103,7 @@ export class Analyzer extends BasedOnOptions{
 
         // Find the first level of usages
         const usages = this.findFunctionUsages(funcNode);
-        //TODO: for type SyntaxKind.MethodDeclaration, the usages is empty, fix it.
+        console.log("usages", usages.map(u => u.getText()), funcNode.getText());
 
         for (const usage of usages) {
             // Find the index of the generic parameter in the definition (e.g., <T, P>)
@@ -118,7 +124,7 @@ export class Analyzer extends BasedOnOptions{
 
             if (type.isTypeParameter()) {
                 // Recursive step: Still generic. Keep tracing.
-                const nextContainer = this.findContainingFunction(usage);
+                const nextContainer = this.findContainingFunction(usage, type);
                 if (nextContainer) {
                     // Pass the current path down the chain
                     const deeperResults = this.traceToConcreteUsages(nextContainer, type, newPath);
@@ -205,6 +211,19 @@ export class Analyzer extends BasedOnOptions{
         return type.getText() + "_" + index;
     }
 
+    // noinspection JSUnusedGlobalSymbols
+    /**
+     * TODO: remove if not used
+     * Generates a unique identifier for a given generic node by combining its file path and start position.
+     *
+     * @param {Node} node - The node for which the unique identifier needs to be generated.
+     * @return {string} A unique identifier string for the provided node.
+     */
+    static getUniqueIdForGenericNode(node: Node): string {
+        // A combination of file path and start position is a reliable unique identifier for a node.
+        return `${node.getSourceFile().getFilePath()}:${node.getStart()}`;
+    }
+
     static resolveValue(node: Node): any {
         // If it's an object literal
         if (Node.isObjectLiteralExpression(node)) {
@@ -246,5 +265,15 @@ export class Analyzer extends BasedOnOptions{
 
         // If we can't resolve it, return undefined
         return undefined;
+    }
+
+    static checkIfTypeIsAcceptable (type: Type) {
+
+        if (type.isUnionOrIntersection()) {
+            throw new Error(`Cannot pick from union or intersection types`);
+        }
+        if (type.isAny()) {
+            throw new Error(`Cannot pick from 'any' type`);
+        }
     }
 }

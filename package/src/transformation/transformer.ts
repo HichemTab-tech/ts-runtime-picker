@@ -3,6 +3,7 @@ import {fileToTypes, project, typeToFile} from "../plugin/state";
 import { Analyzer } from "./analyzer";
 import {Rewriter} from "./rewriter";
 import { findAndCategorizeImports } from "./discovery";
+import {initiateResolvers} from "./resolver-factory";
 
 export function transformCode(code: string, filePath: string): string {
     let sourceFile = project.getSourceFile(filePath);
@@ -39,40 +40,45 @@ export function transformCode(code: string, filePath: string): string {
         if (call.wasForgotten()) continue; // Skip nodes removed in a previous iteration.
         const exprText = call.getExpression().getText();
         const behavior = categorizedImports.get(exprText);
-        if (behavior && call.getTypeArguments().length > 0) {
-            const optionsArgument = call.getArguments()[0];
-            let partialOptions = {};
-            if (optionsArgument) {
-                partialOptions = Analyzer.resolveValue(optionsArgument);
+        if (!behavior) continue;
+
+        if (call.getTypeArguments().length <= 0) {
+            console.trace(`Call expression ${call.getText()} has no type arguments.`);
+            continue;
+        }
+        console.log(`working on file ${sourceFile.getBaseName()} on line ${call.getStartLineNumber()} transforming: `, call.getText());
+        const optionsArgument = call.getArguments()[0];
+        let partialOptions = {};
+        if (optionsArgument) {
+            partialOptions = Analyzer.resolveValue(optionsArgument);
+        }
+        const typeArg = call.getTypeArguments()[0];
+        const pickedType = typeArg.getType();
+        if (!pickedType) {
+            console.trace(`Type argument ${typeArg.getText()} of call expression ${call.getText()} is not a type.`);
+            continue;
+        }
+        Analyzer.checkIfTypeIsAcceptable(pickedType);
+
+        const analyzer = new Analyzer(partialOptions, call);
+        const rewriter = new Rewriter(partialOptions, call);
+        initiateResolvers(partialOptions, call);
+        if (pickedType.isTypeParameter()) {
+            const container = analyzer.findContainingFunction(call, pickedType);
+            if (!container) continue;
+
+            console.log("container", container.getText());
+
+            const concreteUsages = analyzer.traceToConcreteUsages(container, pickedType).filter(u => Boolean(u));
+            if (concreteUsages.length === 0) continue;
+            console.log("concreteUsages", concreteUsages)
+
+            for (const usage of concreteUsages) {
+                rewriter.executeRewrite(usage, behavior, call);
             }
-            const typeArg = call.getTypeArguments()[0];
-            const pickedType = typeArg.getType();
-
-            if (!pickedType) {
-                continue;
-            }
-
-            if (pickedType.isUnionOrIntersection()) {
-                throw new Error(`Cannot pick from union or intersection types`);
-            }
-
-            const analyzer = new Analyzer(partialOptions);
-            const rewriter = new Rewriter(partialOptions);
-
-            if (pickedType.isTypeParameter()) {
-                const container = analyzer.findContainingFunction(call);
-                if (!container) continue;
-
-                const concreteUsages = analyzer.traceToConcreteUsages(container, pickedType);
-                if (concreteUsages.length === 0) continue;
-
-                for (const usage of concreteUsages) {
-                    rewriter.executeRewrite(usage, behavior, call);
-                }
-            } else {
-                const props = analyzer.getPropertiesOfType(pickedType);
-                rewriter.replacePickerCallWithImplementation(call, props);
-            }
+        } else {
+            const props = analyzer.getPropertiesOfType(pickedType);
+            rewriter.replacePickerCallWithImplementation(call, props);
         }
     }
 

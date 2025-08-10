@@ -7,9 +7,10 @@ import {
     Node,
     SyntaxKind
 } from "ts-morph";
-import { IResolver } from "./types";
+import {IResolver} from "./types";
+import {BasedOnContext} from "../BasedOnContext";
 
-export class FunctionResolver implements IResolver {
+export class FunctionResolver extends BasedOnContext implements IResolver {
     canResolve(node: Node): boolean {
         return Node.isFunctionDeclaration(node)
             || Node.isArrowFunction(node)
@@ -19,20 +20,39 @@ export class FunctionResolver implements IResolver {
 
     findUsages(containerNode: Node): CallExpression[] {
         const funcNode = containerNode as FunctionDeclaration | ArrowFunction | FunctionExpression | MethodDeclaration;
-        let references;
-        if (!Node.isArrowFunction(funcNode)) {
-            references = funcNode.findReferencesAsNodes();
-        }
-        else{
+        let references = [];
+        if (Node.isMethodDeclaration(funcNode)) {
+            // Get the containing class
+            const containingClass = funcNode.getParentIfKind(SyntaxKind.ClassDeclaration);
+            if (containingClass) {
+                // Get the method name
+                const methodName = funcNode.getName();
+                // Find all references to the class
+                const classRefs = containingClass.findReferencesAsNodes();
+
+                const processedSources = new Set<string>();
+                // Look for method calls on class instances
+                for (const ref of classRefs) {
+                    if (processedSources.has(ref.getSourceFile().getFilePath())) continue;
+                    const propertyAccesses = ref
+                        .getSourceFile()
+                        .getDescendantsOfKind(SyntaxKind.PropertyAccessExpression)
+                        .filter(prop => prop.getName() === methodName);
+                    references.push(...propertyAccesses);
+                    processedSources.add(ref.getSourceFile().getFilePath());
+                }
+            }
+        } else if (Node.isArrowFunction(funcNode)) {
             // check if it's assigned to a variable
             const variableDeclaration = funcNode.getFirstAncestorByKind(SyntaxKind.VariableDeclaration);
             if (variableDeclaration) {
                 references = variableDeclaration.findReferencesAsNodes();
-            }
-            else {
+            } else {
                 console.warn("Arrow functions with no variable declaration are not supported for usage analysis.");
                 return [];
             }
+        } else {
+            references = funcNode.findReferencesAsNodes();
         }
         const usageCalls: CallExpression[] = [];
 

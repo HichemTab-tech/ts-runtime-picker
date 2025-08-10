@@ -1,11 +1,12 @@
 import {CallExpression, Node, Type} from "ts-morph";
-import {ConcreteUsage, PropArray} from "./analyzer";
+import {Analyzer, ConcreteUsage, PropArray} from "./analyzer";
 import {generateRandomId} from "../lib/utils";
-import {BasedOnOptions} from "./BasedOnOptions";
+import {BasedOnContext} from "./BasedOnContext";
 import {getResolverForNode} from "./resolver-factory";
 import {TargetBehavior} from "./behavior-map";
+import {ClassResolver} from "./resolvers/class-resolver";
 
-export class Rewriter extends BasedOnOptions{
+export class Rewriter extends BasedOnContext{
     // Track what we've already added to avoid duplicates across multiple rewrite executions
     private paramAddedByContainer: Map<Node, Set<string>> = new Map(); // container -> set of typeUnique
     private paramNameByContainerAndType: Map<Node, Map<string, string>> = new Map(); // container -> (typeUnique -> paramName)
@@ -32,8 +33,12 @@ export class Rewriter extends BasedOnOptions{
 
         // 1) Rewrite the final call site with properties
         const callSite = plan.callSite;
-        const typeUniqueForCallSite = this.getUniqueTypeWithIndex(plan.type, plan.typeParamIndex);
+        const typeUniqueForCallSite = Rewriter.getUniqueTypeWithIndex(plan.type, plan.typeParamIndex);
         if (!this.argAddedByCall.get(callSite)?.has(typeUniqueForCallSite)) {
+
+            // Check if the type is acceptable for the behavior
+            Analyzer.checkIfTypeIsAcceptable(plan.type);
+
             const props = this.getPropertiesOfType(plan.type);
             // Use the resolver of the called container (first segment in the chain)
             const firstContainer = plan.chain[0]?.container as unknown as Node | undefined;
@@ -79,7 +84,10 @@ export class Rewriter extends BasedOnOptions{
 
         // 3) Replace the innermost picker call
         if (innermostPickerCall && !innermostPickerCall.wasForgotten()) {
-            this.replacePickerCallWithImplementation(innermostPickerCall, baseArgName + "_0");
+            // if the last plan.chain is a kind of class, let the replacePickerCallWithImplementation use "this"
+            // before the variable
+            const lastContainer = plan.chain[plan.chain.length - 1].container;
+            this.replacePickerCallWithImplementation(innermostPickerCall, baseArgName + "_0", ClassResolver.isClass(lastContainer));
         }
     }
 
@@ -124,17 +132,18 @@ export class Rewriter extends BasedOnOptions{
         });
     }
 
-    private getUniqueTypeWithIndex(type: Type, index: number): string {
+    static getUniqueTypeWithIndex(type: Type, index: number): string {
         return type.getText() + "_" + index;
     }
 
     /**
      * Replaces the internal `createPicker<T>()` call with the runtime implementation.
      * @param pickerCall The `createPicker<T>()` node to replace.
-     * @param argNameOrProps
+     * @param argNameOrProps - argument name or props to use for the implementation.
+     * @param useThisStatement - if true, will use `this` before the argument name.
+     * @returns void
      */
-    replacePickerCallWithImplementation(pickerCall: CallExpression, argNameOrProps: string|PropArray) {
-        console.log("op", this.options);
+    replacePickerCallWithImplementation(pickerCall: CallExpression, argNameOrProps: string|PropArray, useThisStatement: boolean = false): void {
         if (!this.options.recursive && typeof argNameOrProps !== 'string') {
             argNameOrProps = argNameOrProps.map(a => {
                 if (typeof a === "string") return a;
@@ -142,6 +151,6 @@ export class Rewriter extends BasedOnOptions{
                 return a.name;
             });
         }
-        pickerCall.replaceWithText(`((_obj: any) => {\n    const _keys: any[] = ${typeof argNameOrProps === 'string' ? argNameOrProps : `JSON.parse('${JSON.stringify(argNameOrProps)}')`};\n    const reduceThisOne = (_keys: any, _obj: any) => {\n        return _keys.reduce((_acc: {[k: string]: any}, _key: any) => {\n            if (typeof _obj === 'string') return _obj;\n        \n            if (typeof _key !== 'string') {\n                const { name, props } = _key;\n                if (name in _obj) {\n                    _acc[name] = reduceThisOne(props, _obj[name]);\n                }\n            }\n            else {\n                if (_key in _obj) _acc[_key] = _obj[_key];\n            }\n            return _acc;\n        }, {});\n    }\n    \n    return reduceThisOne(_keys, _obj);\n})`);
+        pickerCall.replaceWithText(`((_obj: any) => {\n    const _keys: any[] = ${typeof argNameOrProps === 'string' ? (`${useThisStatement ? "this." : ""}${argNameOrProps}`) : `JSON.parse('${JSON.stringify(argNameOrProps)}')`};\n    const reduceThisOne = (_keys: any, _obj: any) => {\n        return _keys.reduce((_acc: {[k: string]: any}, _key: any) => {\n            if (typeof _obj === 'string') return _obj;\n        \n            if (typeof _key !== 'string') {\n                const { name, props } = _key;\n                if (name in _obj) {\n                    _acc[name] = reduceThisOne(props, _obj[name]);\n                }\n            }\n            else {\n                if (_key in _obj) _acc[_key] = _obj[_key];\n            }\n            return _acc;\n        }, {});\n    }\n    \n    return reduceThisOne(_keys, _obj);\n})`);
     }
 }
