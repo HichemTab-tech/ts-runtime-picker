@@ -1,6 +1,6 @@
 {
   "name": "ts-runtime-picker",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "main": "dist/index.js",
   "exports": {
     ".": {
@@ -32,7 +32,8 @@
     "runtime",
     "picker",
     "babel",
-    "vite"
+    "vite",
+    "vite-plugin"
   ],
   "author": "HichemTab-tech",
   "license": "MIT",
